@@ -9,7 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserEntity {
+@Table(name = "user_table")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -18,7 +19,7 @@ public class UserEntity {
     private String login;
     private String password;
 
-    public UserEntity(String login, String password){
+    public User(String login, String password){
         this.login = login;
         this.password = password;
     }

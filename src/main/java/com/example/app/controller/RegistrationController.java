@@ -2,7 +2,9 @@ package com.example.app.controller;
 
 import com.example.app.service.AuthService;
 import com.example.app.utils.exceptions.UserAlreadyRegisteredException;
-import com.example.app.utils.model.entities.UserEntity;
+import com.example.app.utils.model.JwtResponse;
+import com.example.app.utils.model.entities.User;
+import io.jsonwebtoken.Jwt;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +21,14 @@ public class RegistrationController {
     AuthService authService;
 
     @PostMapping
-    public ResponseEntity<String> registration(@RequestBody UserEntity user){
+    public ResponseEntity<JwtResponse> registration(@RequestBody User user){
         try{
-            authService.registration(user);
-            return ResponseEntity.status(HttpStatus.OK).body("Пользователь успешно зарегистрирован");
+            JwtResponse jwtResponse = authService.registration(user);
+            return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
         }
         catch (UserAlreadyRegisteredException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Пользователь с таким логином уже зарегистрирован");
+            JwtResponse jwtResponse = new JwtResponse(null, null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtResponse);
         }
     }
 

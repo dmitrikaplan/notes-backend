@@ -2,7 +2,8 @@ package com.example.app.service;
 
 import com.example.app.utils.exceptions.UserAlreadyRegisteredException;
 import com.example.app.utils.exceptions.UserNotFoundException;
-import com.example.app.utils.model.entities.UserEntity;
+import com.example.app.utils.model.JwtResponse;
+import com.example.app.utils.model.entities.User;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public interface AuthService {
 
-    void loginUser(@NonNull UserEntity user) throws UserNotFoundException;
+    JwtResponse login(@NonNull User user) throws UserNotFoundException;
 
-    void registration(@NonNull UserEntity user) throws UserAlreadyRegisteredException;
+    JwtResponse registration(@NonNull User user) throws UserAlreadyRegisteredException;
 
 }

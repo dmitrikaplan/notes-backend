@@ -1,7 +1,7 @@
 package com.example.app.utils;
 
 import com.example.app.security.Crypto;
-import com.example.app.utils.model.entities.UserEntity;
+import com.example.app.utils.model.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -33,19 +33,19 @@ public class JwtProvider {
         this.crypto = crypto;
     }
 
-    public void setJwtAccessToken(String data) {
-        String cryptoData = crypto.getIntoBase64(data);
-        this.jwtAccessToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(cryptoData));
+    public void setJwtAccessToken(User user) {
+        String data = crypto.getIntoBase64(user);
+        this.jwtAccessToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(data));
     }
 
-    public void setJwtRefreshToken(String data) {
-        String cryptoData = crypto.getIntoBase64(data);
-        this.jwtRefreshToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(cryptoData));
+    public void setJwtRefreshToken(User user) {
+        String data = crypto.getIntoBase64(user);
+        this.jwtRefreshToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(data));
     }
 
 
-    public String generateJwtAccessToken(@NonNull UserEntity user) {
-        setJwtAccessToken(user.getLogin());
+    public String generateJwtAccessToken(@NonNull User user) {
+        setJwtAccessToken(user);
         final LocalDateTime now = LocalDateTime.now();
         final Instant accessExpirationInstant = now.plusHours(1).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
@@ -58,8 +58,8 @@ public class JwtProvider {
     }
 
 
-    public String generateJwtRefreshToken(@NonNull UserEntity user) {
-        setJwtRefreshToken(user.getLogin());
+    public String generateJwtRefreshToken(@NonNull User user) {
+        setJwtRefreshToken(user);
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant = now.plusDays(30).atZone(ZoneId.systemDefault()).toInstant();
         final Date refreshExpiration = Date.from(refreshExpirationInstant);
@@ -89,15 +89,20 @@ public class JwtProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
+            System.out.println("Error");
             log.error("Token expired", e);
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported jwt", e);
+            System.out.println("Error");
         } catch (MalformedJwtException e) {
             log.error("Malformed jwt", e);
+            System.out.println("Error");
         } catch (SignatureException e) {
             log.error("Invalid signature", e);
+            System.out.println("Error");
         } catch (Exception e) {
             log.error("invalid token", e);
+            System.out.println("Error");
         }
 
         return false;
