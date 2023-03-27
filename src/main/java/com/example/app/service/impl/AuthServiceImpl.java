@@ -63,11 +63,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidLoginException, NotValidUserException {
+    public void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidUserException {
         validateUser(user);
         final User u = userRepository.getUserByEmail(user.getEmail());
         if(u != null && u.isActivated()) throw new UserAlreadyRegisteredException();
-        if(user.getEmail().isEmpty()) throw new NotValidLoginException();
 
         final String hashedPassword = doHash(user);
         final String activationCode = UUID.randomUUID().toString().replace("-", "");
@@ -127,7 +126,7 @@ public class AuthServiceImpl implements AuthService {
                 "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@" +
                         "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);
-        return pattern.matcher(email).matches();
+        return !pattern.matcher(email).matches();
     }
 
 

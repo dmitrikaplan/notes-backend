@@ -26,12 +26,10 @@ public class RegistrationController {
     public ResponseEntity<String> registration(@RequestBody User user){
         try{
             authService.registration(user);
-            return ResponseEntity.status(HttpStatus.OK).body(null);
+            return ResponseEntity.status(HttpStatus.OK).body("Успешно");
         }
         catch (UserAlreadyRegisteredException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Пользователь уже зарегистрирован");
-        } catch (NotValidLoginException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Некорректный логин");
         } catch (NotValidUserException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Некорректные(й) логин и/или пароль, и/или почта");
         }
