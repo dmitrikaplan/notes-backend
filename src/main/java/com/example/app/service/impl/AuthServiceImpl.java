@@ -7,10 +7,7 @@ import com.example.app.service.AuthService;
 import com.example.app.service.MailSender;
 import com.example.app.utils.JwtProvider;
 import com.example.app.utils.UtilsForEmails;
-import com.example.app.utils.exceptions.NotFoundUserByActivationCode;
-import com.example.app.utils.exceptions.NotValidLoginException;
-import com.example.app.utils.exceptions.UserAlreadyRegisteredException;
-import com.example.app.utils.exceptions.UserNotFoundException;
+import com.example.app.utils.exceptions.*;
 import com.example.app.utils.model.JwtResponse;
 import com.example.app.utils.model.entities.RefreshToken;
 import com.example.app.utils.model.entities.Salt;
@@ -21,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -53,7 +51,8 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public JwtResponse login(@NonNull User user) throws UserNotFoundException {
+    public JwtResponse login(@NonNull User user) throws UserNotFoundException, NotValidUserException {
+        validateUser(user);
         String hashedPassword = getHash(user);
         if(!userRepository.existsUserEntityByLoginAndPasswordAndActivated(user.getLogin(), hashedPassword, true))
             throw new UserNotFoundException("Пользователь с данным логином и паролем не найден");
@@ -64,7 +63,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidLoginException {
+    public void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidLoginException, NotValidUserException {
+        validateUser(user);
         final User u = userRepository.getUserByEmail(user.getEmail());
         if(u != null && u.isActivated()) throw new UserAlreadyRegisteredException();
         if(user.getEmail().isEmpty()) throw new NotValidLoginException();
@@ -111,6 +111,23 @@ public class AuthServiceImpl implements AuthService {
     private void saveRefreshToken(String login, String token){
         RefreshToken refreshToken = new RefreshToken(login, token);
         refreshTokenRepository.save(refreshToken);
+    }
+
+
+    private void validateUser(User user) throws NotValidUserException {
+        if(
+                        user.getLogin() == null || user.getLogin().length() < 6 ||
+                        user.getPassword() == null || user.getPassword().length() < 6 ||
+                user.getEmail() == null || validateEmail(user.getEmail())
+        ) throw new NotValidUserException();
+    }
+
+    private boolean validateEmail(String email){
+        final String EMAIL_PATTERN =
+                "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@" +
+                        "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+        return pattern.matcher(email).matches();
     }
 
 

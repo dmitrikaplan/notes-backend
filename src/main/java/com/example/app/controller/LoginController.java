@@ -1,6 +1,7 @@
 package com.example.app.controller;
 
 import com.example.app.service.AuthService;
+import com.example.app.utils.exceptions.NotValidUserException;
 import com.example.app.utils.exceptions.UserNotFoundException;
 import com.example.app.utils.model.JwtResponse;
 import com.example.app.utils.model.entities.User;
@@ -22,13 +23,15 @@ public class LoginController {
             @RequestBody User user
     ) {
         try{
-            System.out.println(user.getLogin() + " " + user.getEmail() + " " + user.getPassword());
             JwtResponse jwtResponse = authService.login(user);
             return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
         }
         catch (UserNotFoundException e){
             JwtResponse jwtResponse = new JwtResponse();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(jwtResponse);
+        } catch (NotValidUserException e) {
+            JwtResponse jwtResponse = new JwtResponse();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtResponse);
         }
 
     }
