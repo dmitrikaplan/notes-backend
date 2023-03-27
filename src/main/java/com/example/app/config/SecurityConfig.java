@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class SecurityConfig {
 
-    JwtFilter jwtFilter;
+    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests()
                     .requestMatchers( HttpMethod.GET,"/api/v1/activate/{code}").permitAll()
-                    .requestMatchers(HttpMethod.POST,"/api/v1/login", "/api/v1/reg").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/api/v1/login", "/api/v1/registration").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class);

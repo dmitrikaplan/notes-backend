@@ -4,6 +4,7 @@ import com.example.app.repository.UserRepository;
 import com.example.app.service.AuthService;
 import com.example.app.utils.exceptions.NotFoundUserByActivationCode;
 import com.example.app.utils.exceptions.NotValidLoginException;
+import com.example.app.utils.exceptions.NotValidUserException;
 import com.example.app.utils.exceptions.UserAlreadyRegisteredException;
 import com.example.app.utils.model.JwtResponse;
 import com.example.app.utils.model.entities.User;
@@ -21,16 +22,18 @@ public class RegistrationController {
     private AuthService authService;
 
 
-    @PostMapping("reg")
+    @PostMapping("registration")
     public ResponseEntity<String> registration(@RequestBody User user){
         try{
             authService.registration(user);
             return ResponseEntity.status(HttpStatus.OK).body(null);
         }
         catch (UserAlreadyRegisteredException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Пользователь уже зарегистрирован");
         } catch (NotValidLoginException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Некорректный логин");
+        } catch (NotValidUserException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Некорректные(й) логин и/или пароль, и/или почта");
         }
     }
 

@@ -30,10 +30,9 @@ public class JwtFilter extends GenericFilterBean {
         if(token != null && jwtProvider.validateAccessToken(token)){
             final Claims claims = jwtProvider.getAccessClaims(token);
             final JwtAuthentication jwtInfoToken = JwtUtils.generate(claims);
-            System.out.println("Авторизован");
             jwtInfoToken.setAuthenticated(true);
             SecurityContextHolder.getContext().setAuthentication(jwtInfoToken);
-        } else System.out.println("Не авторизован"); // TODO: 3/27/23  Убрать метку об авторизации
+        } // TODO: 3/27/23  Убрать метку об авторизации
         chain.doFilter(request, response);
     }
 

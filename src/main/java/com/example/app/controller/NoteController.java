@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class NoteController {
 
-    NoteService noteService;
+    private NoteService noteService;
 
     @PostMapping("add")
     public ResponseEntity<Note> addNotes(@RequestBody Note note){
