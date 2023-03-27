@@ -1,4 +1,4 @@
-package com.example.app.security;
+package com.example.app.utils.security;
 
 
 import org.springframework.security.core.Authentication;

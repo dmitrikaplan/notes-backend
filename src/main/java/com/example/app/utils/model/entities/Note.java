@@ -18,6 +18,7 @@ public class Note {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    private String title;
     private String text;
     private String owner;
 

@@ -8,20 +8,18 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @Table(name = "user_table")
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
+    private String email;
     private String login;
     private String password;
-
-    public User(String login, String password){
-        this.login = login;
-        this.password = password;
-    }
+    private boolean activated;
+    private String activationCode;
 
 }

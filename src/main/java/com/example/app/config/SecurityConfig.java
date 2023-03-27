@@ -1,4 +1,4 @@
-package com.example.app.security;
+package com.example.app.config;
 
 import com.example.app.utils.filters.JwtFilter;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests()
-                    .requestMatchers( HttpMethod.GET,"/api/v1/test").permitAll()
+                    .requestMatchers( HttpMethod.GET,"/api/v1/activate/{code}").permitAll()
                     .requestMatchers(HttpMethod.POST,"/api/v1/login", "/api/v1/reg").permitAll()
                     .anyRequest().authenticated()
                 .and()

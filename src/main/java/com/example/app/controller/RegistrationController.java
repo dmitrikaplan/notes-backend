@@ -1,6 +1,9 @@
 package com.example.app.controller;
 
+import com.example.app.repository.UserRepository;
 import com.example.app.service.AuthService;
+import com.example.app.utils.exceptions.NotFoundUserByActivationCode;
+import com.example.app.utils.exceptions.NotValidLoginException;
 import com.example.app.utils.exceptions.UserAlreadyRegisteredException;
 import com.example.app.utils.model.JwtResponse;
 import com.example.app.utils.model.entities.User;
@@ -8,27 +11,36 @@ import io.jsonwebtoken.Jwt;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/reg")
+@RequestMapping("/api/v1/")
 @AllArgsConstructor
 public class RegistrationController {
 
-    AuthService authService;
+    private AuthService authService;
 
-    @PostMapping
-    public ResponseEntity<JwtResponse> registration(@RequestBody User user){
+
+    @PostMapping("reg")
+    public ResponseEntity<String> registration(@RequestBody User user){
         try{
-            JwtResponse jwtResponse = authService.registration(user);
-            return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+            authService.registration(user);
+            return ResponseEntity.status(HttpStatus.OK).body(null);
         }
         catch (UserAlreadyRegisteredException e) {
-            JwtResponse jwtResponse = new JwtResponse(null, null);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        } catch (NotValidLoginException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @GetMapping("activate/{code}")
+    public String activateAccount(@PathVariable("code") String code){
+        try {
+            authService.activateAccount(code);
+            return "Аккаунт успешно активирован";
+        } catch (NotFoundUserByActivationCode e) {
+            return "Ошибка активации аккаунта, повторите попытку позже";
         }
     }
 

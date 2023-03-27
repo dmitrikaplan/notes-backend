@@ -1,4 +1,4 @@
-package com.example.app.security;
+package com.example.app.utils.security;
 
 import com.example.app.utils.model.entities.User;
 import io.jsonwebtoken.io.Encoders;
@@ -45,7 +45,8 @@ public class Crypto {
     public String getIntoBase64(@NonNull User user) {
         String salt1 = generateSalt(256);
         String salt2 = generateSalt(256);
-        String secret = md5(salt2 + user.getLogin() + md5(salt1 + user.getPassword()));
+        String salt3 = generateSalt(30);
+        String secret = md5(salt2 + user.getLogin() + md5(salt1 + user.getPassword())) + salt3;
         return Encoders.BASE64.encode(secret.getBytes());
     }
 }

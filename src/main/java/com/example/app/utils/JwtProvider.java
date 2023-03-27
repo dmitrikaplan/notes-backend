@@ -1,6 +1,6 @@
 package com.example.app.utils;
 
-import com.example.app.security.Crypto;
+import com.example.app.utils.security.Crypto;
 import com.example.app.utils.model.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

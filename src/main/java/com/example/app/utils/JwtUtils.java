@@ -1,6 +1,6 @@
 package com.example.app.utils;
 
-import com.example.app.security.JwtAuthentication;
+import com.example.app.utils.security.JwtAuthentication;
 import io.jsonwebtoken.Claims;
 
 public class JwtUtils {

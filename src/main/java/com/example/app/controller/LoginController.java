@@ -15,19 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class LoginController {
 
-    AuthService authService;
+    private AuthService authService;
 
     @PostMapping
     public ResponseEntity<JwtResponse> login(
             @RequestBody User user
     ) {
         try{
+            System.out.println(user.getLogin() + " " + user.getEmail() + " " + user.getPassword());
             JwtResponse jwtResponse = authService.login(user);
             return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
         }
         catch (UserNotFoundException e){
             JwtResponse jwtResponse = new JwtResponse();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jwtResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(jwtResponse);
         }
 
     }

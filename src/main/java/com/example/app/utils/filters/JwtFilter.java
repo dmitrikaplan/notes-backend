@@ -1,6 +1,6 @@
 package com.example.app.utils.filters;
 
-import com.example.app.security.JwtAuthentication;
+import com.example.app.utils.security.JwtAuthentication;
 import com.example.app.utils.JwtProvider;
 import com.example.app.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -30,10 +30,10 @@ public class JwtFilter extends GenericFilterBean {
         if(token != null && jwtProvider.validateAccessToken(token)){
             final Claims claims = jwtProvider.getAccessClaims(token);
             final JwtAuthentication jwtInfoToken = JwtUtils.generate(claims);
-            System.out.println(true);
+            System.out.println("Авторизован");
             jwtInfoToken.setAuthenticated(true);
             SecurityContextHolder.getContext().setAuthentication(jwtInfoToken);
-        } else System.out.println(false);
+        } else System.out.println("Не авторизован"); // TODO: 3/27/23  Убрать метку об авторизации
         chain.doFilter(request, response);
     }
 

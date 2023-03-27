@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class NoteServiceImpl implements NoteService {
 
-    NoteRepository noteRepository;
+    private NoteRepository noteRepository;
     @Override
     public Note addNote(@NonNull Note note) {
         return noteRepository.save(note);
