@@ -12,7 +12,7 @@ public interface AuthService {
 
     JwtResponse login(@NonNull User user) throws UserNotFoundException, NotValidUserException;
 
-    void registration(@NonNull User user) throws UserAlreadyRegisteredException,  NotValidUserException;
+    void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidUserException;
 
     void activateAccount(String code) throws NotFoundUserByActivationCode;
 

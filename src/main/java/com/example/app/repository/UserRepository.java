@@ -12,11 +12,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
-    boolean existsUserEntityByLogin(String login);
+    boolean existsUserByLogin(String login);
+    boolean existsUserByLoginOrEmail(String login,String email);
 
-    boolean existsUserEntityByLoginAndPasswordAndActivated(String login, String password, boolean activated);
+    boolean existsUserByLoginAndPasswordAndEmailAndActivated(String login, String password,String email, boolean activated);
 
     User getUserByEmail(String email);
+
+    User getUserByLogin(String login);
 
     boolean existsUserByActivationCode(String activationCode);
 
