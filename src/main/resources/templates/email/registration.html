@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <title></title>
+
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+
+        }
+
+
+        .content {
+            height:fit-content;
+            width: fit-content;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content--styled {
+            background-color: whitesmoke;
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .content__header{
+            margin-bottom: 15px;
+        }
+
+        .content__text{
+            font-size: 20px;
+        }
+
+
+    </style>
+</head>
+
+<body>
+<div class="container flex">
+    <div class="content content--styled">
+        <div class="content__text-container">
+            <h1 class="content__header">Здравствуйте,<br> <span class="content__link " th:text="${login}">пользователь</span></h1>
+            <p class="content__text">Благодарим за регистрацию в нашем продукте.<br>
+                Для подтверждения регистрации перейдите по <a th:attr="href=${activationLink}"><strong>ссылке</strong></a>.</p>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

@@ -4,48 +4,45 @@ import com.example.app.repository.RefreshTokenRepository;
 import com.example.app.repository.SaltRepository;
 import com.example.app.repository.UserRepository;
 import com.example.app.service.AuthService;
-import com.example.app.service.MailSender;
+import com.example.app.service.CryptoService;
+import com.example.app.service.EmailService;
+import com.example.app.service.ValidationService;
 import com.example.app.utils.JwtProvider;
-import com.example.app.utils.UtilsForEmails;
 import com.example.app.utils.exceptions.*;
 import com.example.app.utils.model.JwtResponse;
 import com.example.app.utils.model.entities.RefreshToken;
-import com.example.app.utils.model.entities.Salt;
 import com.example.app.utils.model.entities.User;
-import com.example.app.utils.security.Crypto;
+import jakarta.mail.MessagingException;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private UserRepository userRepository;
-    private SaltRepository saltRepository;
     private RefreshTokenRepository refreshTokenRepository;
-    private MailSender mailSender;
-    private Crypto crypto;
+    private EmailService emailService;
+    private CryptoService cryptoService;
     private JwtProvider jwtProvider;
-    @Value("${kittynotes.host}")
-    private String host;
+    private ValidationService validationService;
 
     public AuthServiceImpl(
             UserRepository userRepository,
             SaltRepository saltRepository,
             RefreshTokenRepository refreshTokenRepository,
-            MailSender mailSender,
-            Crypto crypto,
-            JwtProvider jwtProvider
+            EmailService emailService,
+            CryptoService cryptoService,
+            JwtProvider jwtProvider,
+            ValidationService validationService
     ) {
         this.userRepository = userRepository;
-        this.saltRepository = saltRepository;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.mailSender = mailSender;
-        this.crypto = crypto;
+        this.emailService = emailService;
+        this.cryptoService = cryptoService;
         this.jwtProvider = jwtProvider;
+        this.validationService = validationService;
     }
 
 
@@ -59,18 +56,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidUserException{
+    public void registration(@NonNull User user) throws UserAlreadyRegisteredException, NotValidUserException, MessagingException {
         checkRegistration(user);
-        final User u = userRepository.getUserByEmail(user.getEmail());
-        if (u != null && u.isActivated()) throw new UserAlreadyRegisteredException();
 
-        final String hashedPassword = doHash(user);
+
+        final String hashedPassword = cryptoService.doHash(user);
         final String activationCode = UUID.randomUUID().toString().replace("-", "");
-        final String message = UtilsForEmails.getMessageForActivation(user.getEmail(), host, activationCode);
 
         user.setPassword(hashedPassword);
         user.setActivationCode(activationCode);
-        mailSender.send(user.getEmail(), UtilsForEmails.getSubjectForActivation(), message);
+        emailService.activateUserByEmail(user.getEmail(), user.getLogin(), activationCode);
         userRepository.save(user);
     }
 
@@ -83,24 +78,31 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-    private String getHash(@NonNull User user) throws UserNotFoundException {
-        Salt salts = saltRepository.getSaltByOwner(user.getLogin());
-        if (salts == null) throw new UserNotFoundException("Пользователь с данным логином и паролем не найден");
-        String salt1 = salts.getSalt1();
-        String salt2 = salts.getSalt2();
-        String hash = crypto.md5(salt1 + user.getPassword() + salt2);
-        return crypto.md5(hash);
+    @Override
+    public void passwordRecovery(User user) throws NotValidEmailException, UserNotFoundException, MessagingException {
+        User u = getUserByLoginOrEmail(user);
+        if(!validationService.validateEmail(u.getEmail())) throw new NotValidEmailException();
+
+        String activationCode = UUID.randomUUID().toString().replace("-", "");
+        user.setActivationCode(activationCode);
+
+        emailService.recoveryPasswordByEmail(u.getEmail(),u.getLogin(), activationCode);
+        userRepository.save(user);
     }
 
-
-    private String doHash(@NonNull User user) {
-        String salt1 = crypto.generateSalt(20);
-        String salt2 = crypto.generateSalt(20);
-        Salt salt = new Salt(salt1, salt2, user.getLogin());
-        saltRepository.save(salt);
-        String hash = crypto.md5(salt1 + user.getPassword() + salt2);
-        return crypto.md5(hash);
+    private User getUserByLoginOrEmail(User user) throws UserNotFoundException {
+        if(user.getLogin() == null) {
+            User u = userRepository.getUserByEmail(user.getEmail());
+            if(u == null) throw new UserNotFoundException("Пользователь с такой почтой не найден");
+            user.setLogin(u.getLogin());
+        } else{
+            User u = userRepository.getUserByLogin(user.getLogin());
+            if(u == null) throw new UserNotFoundException("Пользователь с таким логином не найден");
+            user.setEmail(u.getEmail());
+        }
+        return user;
     }
+
 
 
     private void saveRefreshToken(String login, String token) {
@@ -108,51 +110,19 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
     }
 
-
     private void checkLogin(User user) throws NotValidUserException, UserNotFoundException {
-        validateLogin(user);
-        if(user.getLogin() == null) {
-            User u = userRepository.getUserByEmail(user.getEmail());
-            user.setLogin(u.getLogin());
-        } else{
-            User u = userRepository.getUserByLogin(user.getLogin());
-            user.setEmail(u.getEmail());
-        }
-        String hashedPassword = getHash(user);
+        validationService.validateLogin(user);
+        User u = getUserByLoginOrEmail(user);
+        String hashedPassword = cryptoService.getHash(user);
         if(!userRepository.existsUserByLoginAndPasswordAndEmailAndActivated
-                (user.getLogin(), hashedPassword, user.getEmail(),true)) throw new UserNotFoundException("Пользователь с данным логином и паролем не найден");
+                (u.getLogin(), hashedPassword, u.getEmail(),true)) throw new UserNotFoundException("Пользователь с данным логином и паролем не найден");
     }
 
     private void checkRegistration(User user) throws NotValidUserException, UserAlreadyRegisteredException {
-        validateRegistration(user);
-        if(userRepository.existsUserByLoginOrEmail(user.getLogin(), user.getEmail()))
-            throw new UserAlreadyRegisteredException();
+        validationService.validateRegistration(user);
+        if(userRepository.existsUserByLoginOrEmailAndActivated(user.getLogin(), user.getEmail(), true))
+            throw new UserAlreadyRegisteredException("Пользователь с таким логином или паролем уже существует");
 
     }
-
-    private void validateLogin(User user) throws NotValidUserException {
-        if (
-                ((user.getLogin() == null || user.getLogin().length() < 6) &&
-                        (user.getEmail() == null || !validateEmail(user.getEmail()))) ||
-                        user.getPassword() == null || user.getPassword().length() < 6
-        ) throw new NotValidUserException();
-    }
-
-    private void validateRegistration(User user) throws NotValidUserException {
-        if (
-                user.getLogin() == null || user.getLogin().length() < 6 ||
-                        user.getEmail() == null || !validateEmail(user.getEmail()) ||
-                        user.getPassword() == null || user.getPassword().length() < 6
-        ) throw new NotValidUserException();
-    }
-
-    private boolean validateEmail(String email) {
-        final String EMAIL_PATTERN =
-                "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@" +
-                        "[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        Pattern pattern = Pattern.compile(EMAIL_PATTERN);
-        return pattern.matcher(email).matches();
-    }
-
 
 }
