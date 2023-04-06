@@ -7,14 +7,14 @@
 
 <h3 align="center">Описание API</h3>
 <h4>1)Регистрация</h4>
-<b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/registration>kaplaan.ru/backend/app/api/v1/registration<a> <br>
+<b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/auth/registration>kaplaan.ru/backend/app/api/v1/auth/registration<a> <br>
 <b>Тело запроса</b>: Тело запроса должно состоять из JSON вида:
 {
  "email": "....",
  "login": "....",
  "password": "....."
 } <br>
-Логин и пароль должны быть больше 6 символов, а email должно подходить под паттерн email. <br>
+Логин и пароль должны быть больше 6 символов, а email должно подходить под паттерн email. Все аргументы обязательные <br>
 
 <b>Коды ответов и их значения</b>: <br>
 <ul>
@@ -32,14 +32,14 @@
  <hr>
  
  <h4>2)Вход</h4>
-<b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/login>kaplaan.ru/backend/app/api/v1/login<a> <br>
+<b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/auth/login>kaplaan.ru/backend/app/api/v1/auth/login<a> <br>
 <b>Тело запроса</b>: Тело запроса должно состоять из JSON вида:
 {
  "email": "....",
  "login": "....",
  "password": "....."
 } <br>
-Логин и пароль должны быть больше 6 символов, а email должно подходить под паттерн email.
+Логин и пароль должны быть больше 6 символов, а email должно подходить под паттерн email. Обязательными аргументами являются email или login и password.
 Также к моменту отправки запроса должен быть активирован аккаунт пользователя с помощью email<br>
 
 <b>Коды ответов и их значения</b>: <br>
