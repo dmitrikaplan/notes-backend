@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends CrudRepository<User, Long> {
 
     boolean existsUserByLogin(String login);
-    boolean existsUserByLoginOrEmail(String login,String email);
+    boolean existsUserByLoginOrEmailAndActivated(String login,String email, boolean activated);
 
     boolean existsUserByLoginAndPasswordAndEmailAndActivated(String login, String password,String email, boolean activated);
 

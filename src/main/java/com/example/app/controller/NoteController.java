@@ -28,7 +28,7 @@ public class NoteController {
         return ResponseEntity.status(HttpStatus.OK).body(note1);
     }
 
-    @PostMapping("delete")
+    @DeleteMapping("delete")
     public ResponseEntity<String> deleteNote(@RequestBody Long id){
         noteService.deleteNote(id);
         return ResponseEntity.status(HttpStatus.OK).body("Заметка успешно удалена");

@@ -1,6 +1,6 @@
 package com.example.app.utils;
 
-import com.example.app.utils.security.Crypto;
+import com.example.app.service.CryptoService;
 import com.example.app.utils.model.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -26,20 +26,20 @@ public class JwtProvider {
 
     private SecretKey jwtAccessToken;
     private SecretKey jwtRefreshToken;
-    private Crypto crypto;
+    private CryptoService cryptoService;
 
     @Autowired
-    public JwtProvider(Crypto crypto) {
-        this.crypto = crypto;
+    public JwtProvider(CryptoService cryptoService) {
+        this.cryptoService = cryptoService;
     }
 
     public void setJwtAccessToken(User user) {
-        String data = crypto.getIntoBase64(user);
+        String data = cryptoService.getIntoBase64(user);
         this.jwtAccessToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(data));
     }
 
     public void setJwtRefreshToken(User user) {
-        String data = crypto.getIntoBase64(user);
+        String data = cryptoService.getIntoBase64(user);
         this.jwtRefreshToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(data));
     }
 

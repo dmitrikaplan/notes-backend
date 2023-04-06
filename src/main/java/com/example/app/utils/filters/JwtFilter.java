@@ -1,6 +1,6 @@
 package com.example.app.utils.filters;
 
-import com.example.app.utils.security.JwtAuthentication;
+import com.example.app.utils.JwtAuthentication;
 import com.example.app.utils.JwtProvider;
 import com.example.app.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
