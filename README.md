@@ -54,7 +54,7 @@
  </ul> <br>
  
  <b>Тело ответа</b>: В качестве тела ответа приходят jwt access token и jwt refresh token в случае успешной авторизации.
-
+  <hr>
 
   <h4>3)Добавить заметку/h4>
 <b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/add>kaplaan.ru/backend/app/api/v1/notes/add<a> <br>
@@ -76,7 +76,7 @@
  </ul> <br>
  
  <b>Тело ответа</b>: В случае успешного добавления заметки в ответ приходит заметка в формате json, при ошибки будет пустое тело ответа.
-
+ <hr>
 
  <h4>4)Обновить заметку/h4>
 <b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/update>kaplaan.ru/backend/app/api/v1/notes/update></a> <br>
@@ -98,7 +98,7 @@
  </ul> <br>
  
  <b>Тело ответа</b>: В случае успешного добавления заметки в ответ приходит заметка в формате json, при ошибки будет пустое тело ответа.
-
+ <hr>
 
   <h4>5)Удалить заметку/h4>
 <b>Запрос</b>: DELETE Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/delete>kaplaan.ru/backend/app/api/v1/notes/delete></a> <br>
@@ -116,7 +116,8 @@
  </ul> <br>
  
  <b>Тело ответа</b>: В теле ответа приходит сообщение, сигнализирующее, что удаление прошло успешно
-
+ <hr>
+ 
  <h4>6)Получить все заметки/h4>
 <b>Запрос</b>: GET Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/get-all>kaplaan.ru/backend/app/api/v1/notes/get-all></a> <br>
 <b>Тело запроса</b>: Тело отсутствует
