@@ -79,7 +79,7 @@
 
 
  <h4>4)Обновить заметку/h4>
-<b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/update>kaplaan.ru/backend/app/api/v1/notes/update> <br>
+<b>Запрос</b>: POST Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/update>kaplaan.ru/backend/app/api/v1/notes/update></a> <br>
 <b>Тело запроса</b>: Тело запроса должно состоять из JSON вида:
 {
  "title": "....",
@@ -101,7 +101,7 @@
 
 
   <h4>5)Удалить заметку/h4>
-<b>Запрос</b>: DELETE Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/delete>kaplaan.ru/backend/app/api/v1/notes/delete> <br>
+<b>Запрос</b>: DELETE Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/delete>kaplaan.ru/backend/app/api/v1/notes/delete></a> <br>
 <b>Тело запроса</b>: Тело запроса должно состоять из JSON вида:
 {
  "id": "....",
@@ -118,7 +118,7 @@
  <b>Тело ответа</b>: В теле ответа приходит сообщение, сигнализирующее, что удаление прошло успешно
 
  <h4>6)Получить все заметки/h4>
-<b>Запрос</b>: GET Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/get-all>kaplaan.ru/backend/app/api/v1/notes/get-all> <br>
+<b>Запрос</b>: GET Запрос на <a href = kaplaan.ru/backend/app/api/v1/notes/get-all>kaplaan.ru/backend/app/api/v1/notes/get-all></a> <br>
 <b>Тело запроса</b>: Тело отсутствует
 
 <b>Коды ответов и их значения</b>: <br>
