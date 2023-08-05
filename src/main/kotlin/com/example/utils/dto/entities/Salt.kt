@@ -1,15 +1,21 @@
-package com.example.utils.model.entities
+package com.example.utils.dto.entities
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotBlank
+import org.springframework.validation.annotation.Validated
 
+@Validated
 @Entity
 class Salt() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private var id: Long? = null
+    @NotBlank
     private var salt1: String? = null
+    @NotBlank
     private var salt2: String? = null
+    @NotBlank
     private var owner: String? = null
 
     constructor(

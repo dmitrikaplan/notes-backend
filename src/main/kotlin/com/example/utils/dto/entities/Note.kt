@@ -1,16 +1,23 @@
-package com.example.utils.model.entities
+package com.example.utils.dto.entities
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotBlank
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.springframework.validation.annotation.Validated
 
+@Validated
 @Entity
-class Note() {
+class Note(){
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private var id: Long? = null
     private var title: String? = null
+    @NotBlank
     private var text: String? = null
+    @NotBlank
     private var owner: String? = null
 
     constructor(
@@ -21,6 +28,9 @@ class Note() {
         this.text = text
         this.owner = owner
     }
+
+    fun toJson() =
+        Json.encodeToString(this)
 
     fun getId() =
         id

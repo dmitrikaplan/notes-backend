@@ -1,7 +1,16 @@
-package com.example.utils.model.entities
+package com.example.utils.dto.entities
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.AssertFalse
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Null
+import jakarta.validation.constraints.Pattern
+import org.hibernate.validator.constraints.Length
+import org.springframework.validation.annotation.Validated
+import kotlin.math.max
 
+@Validated
 @Entity
 @Table(name = "user_table")
 class User() {
@@ -9,8 +18,11 @@ class User() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private var id: Long? = null
+    @Email
     private var email: String? = null
+    @Pattern(regexp = "^[a-zA-Z0-9]{6,320}$")
     private var login: String? = null
+    @Length(min = 8, max = 1024)
     private var password: String? = null
     private var activated = false
     private var activationCode: String? = null
@@ -65,5 +77,9 @@ class User() {
 
     fun setActivationCode(activationCode: String?){
         this.activationCode = activationCode
+    }
+
+    override fun toString(): String {
+        return "User(id = $id, email = $email, login = $login, password = $password)"
     }
 }
