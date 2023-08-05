@@ -1,3 +1,6 @@
 package com.example.utils.exceptions
 
-class NotValidEmailException : Exception()
+class NotValidEmailException : Exception(){
+    override val message: String
+        get() = "Неверный формат почты"
+}
