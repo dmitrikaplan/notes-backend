@@ -5,7 +5,6 @@ import com.example.repository.UserRepository
 import com.example.service.AuthService
 import com.example.service.CryptoService
 import com.example.service.EmailService
-import com.example.service.ValidationService
 import com.example.utils.JwtProvider
 import com.example.utils.dto.UserWithoutLoginOrEmail
 import com.example.utils.dto.responses.JwtResponse
