@@ -2,8 +2,8 @@ package com.example.service
 
 import com.example.repository.SaltRepository
 import com.example.utils.exceptions.UserNotFoundException
-import com.example.utils.model.entities.Salt
-import com.example.utils.model.entities.User
+import com.example.utils.dto.entities.Salt
+import com.example.utils.dto.entities.User
 import io.jsonwebtoken.io.Encoders
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -17,12 +17,12 @@ class CryptoService(private val saltRepository: SaltRepository) {
 
     private val log = LoggerFactory.getLogger(CryptoService::class.java)
 
-    fun getHash(user: User): String {
-        val salts: Salt = saltRepository.getSaltByOwner(user.getLogin()!!)
+    fun getHash(login: String, password: String): String {
+        val salts: Salt = saltRepository.getSaltByOwner(login)
             ?: throw UserNotFoundException("Пользователь с данным логином и паролем не найден")
         val salt1 = salts.getSalt1()
         val salt2 = salts.getSalt2()
-        val hash = md5(salt1 + user.getPassword() + salt2)
+        val hash = md5(salt1 + password + salt2)
         return md5(hash)
     }
 

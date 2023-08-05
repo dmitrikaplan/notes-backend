@@ -1,6 +1,6 @@
 package com.example.repository
 
-import com.example.utils.model.entities.RefreshToken
+import com.example.utils.dto.entities.RefreshToken
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 

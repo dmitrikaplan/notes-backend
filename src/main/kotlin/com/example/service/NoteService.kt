@@ -1,6 +1,6 @@
 package com.example.service
 
-import com.example.utils.model.entities.Note
+import com.example.utils.dto.entities.Note
 import org.springframework.stereotype.Service
 
 /*
@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service
 */
 @Service
 interface NoteService {
-    fun addNote(note: Note): Note?
-    fun updateNote(note: Note): Note?
+    fun addNote(note: Note): Note
+    fun updateNote(note: Note): Note
     fun deleteNote(id: Long)
 
-    fun allNotes(): List<Note>?
+    fun allNotes(): List<Note>
 }

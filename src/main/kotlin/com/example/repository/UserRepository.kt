@@ -1,6 +1,6 @@
 package com.example.repository
 
-import com.example.utils.model.entities.User
+import com.example.utils.dto.entities.User
 import jakarta.transaction.Transactional
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository
 interface UserRepository : JpaRepository<User, Long> {
 
     fun existsUserByLogin(login: String): Boolean
+
+    fun existsUserByActivationCode(activationCode: String): Boolean
 
     fun existsUserByLoginOrEmailAndActivated(login: String, email: String, activated: Boolean): Boolean
 
@@ -27,7 +29,6 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun getUserByLogin(login: String): User?
 
-    fun existsUserByActivationCode(activationCode: String): Boolean
 
     fun getUserByActivationCode(code: String): User?
 

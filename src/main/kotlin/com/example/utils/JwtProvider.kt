@@ -1,13 +1,12 @@
 package com.example.utils
 
 import com.example.service.CryptoService
-import com.example.utils.model.entities.User
+import com.example.utils.dto.entities.User
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.security.Key
 import java.time.LocalDateTime

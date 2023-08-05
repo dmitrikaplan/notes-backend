@@ -1,4 +1,4 @@
-package com.example.utils.model.entities
+package com.example.utils.dto.entities
 
 import jakarta.persistence.*
 

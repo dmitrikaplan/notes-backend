@@ -1,6 +1,6 @@
 package com.example.repository
 
-import com.example.utils.model.entities.Note
+import com.example.utils.dto.entities.Note
 import jakarta.transaction.Transactional
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -18,5 +18,5 @@ interface NoteRepository : CrudRepository<Note, Long> {
         @Param("id") id: Long?
     ): Note?
 
-    fun getNotesByOwner(owner: String?): List<Note>?
+    fun getNotesByOwner(owner: String?): List<Note>
 }
