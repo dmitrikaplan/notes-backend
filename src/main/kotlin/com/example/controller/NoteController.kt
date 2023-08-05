@@ -7,6 +7,7 @@ import com.example.utils.dto.entities.Note
 import com.example.utils.dto.responses.MessageResponse
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.constraints.Min
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -19,12 +20,15 @@ import org.springframework.web.bind.annotation.*
 class NoteController(
     private val noteService: NoteService
 ) {
+    private val log = LoggerFactory.getLogger(NoteController::class.java)
     @PostMapping("add")
     fun addNotes(@RequestBody(required = true) note: Note): ResponseEntity<String> {
         return try {
             val note1 = noteService.addNote(note)
             ResponseEntity.status(HttpStatus.OK).body(note1.toJson())
-        } catch (e: NoteCannotBeAddedException) {
+        }
+        catch (e: NoteCannotBeAddedException) {
+            log.debug(e.message)
             val messageResponse = MessageResponse(e.message)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse.toJson())
         }
@@ -35,7 +39,9 @@ class NoteController(
         return try {
             val note1 = noteService.updateNote(note)
             ResponseEntity.status(HttpStatus.OK).body(note1.toJson())
-        } catch (e: NoteCannotUpdatedException) {
+        }
+        catch (e: NoteCannotUpdatedException) {
+            log.debug(e.message)
             val messageResponse = MessageResponse(e.message)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse.toJson())
         }
@@ -50,6 +56,7 @@ class NoteController(
             ResponseEntity.status(HttpStatus.OK).body(messageResponse.toJson())
         }
         catch (e: ConstraintViolationException){
+            log.debug(e.message)
             val messageResponse = MessageResponse("id должен быть больше 0")
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse.toJson())
         }

@@ -33,6 +33,7 @@ class AuthController (
             ResponseEntity.status(HttpStatus.OK).body(messageResponse.toJson())
         } 
         catch (e: UserAlreadyRegisteredException) {
+            log.debug(e.message)
             val messageResponse = MessageResponse(e.message)
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(messageResponse.toJson())
         }
@@ -94,7 +95,9 @@ class AuthController (
         return try {
             authService.activateAccount(code)
             ResponseEntity.status(HttpStatus.OK).body("Аккаунт успешно активирован")
-        } catch (e: NotFoundUserByActivationCode) {
+        }
+        catch (e: NotFoundUserByActivationCode) {
+            log.debug("Аккаунт уже активирован")
             ResponseEntity.status(HttpStatus.OK).body("Аккаунт уже активирован")
         }
     }
@@ -105,16 +108,22 @@ class AuthController (
             authService.passwordRecovery(userWithoutLoginOrEmail)
             val messageResponse = MessageResponse("Код восстановления отправлен Вам на почту")
             ResponseEntity.status(HttpStatus.OK).body(messageResponse.toJson())
-        } catch (e: NotValidEmailException) {
-            val messageResponse = MessageResponse("Неверный формат почты")
+        }
+        catch (e: NotValidEmailException) {
+            log.debug(e.message)
+            val messageResponse = MessageResponse(e.message)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse.toJson())
-        } catch (e: UserNotFoundException) {
-            val messageResponse = MessageResponse("Пользователь с такой почтой не найден")
+        }
+        catch (e: UserNotFoundException) {
+            log.debug(e.message)
+            val messageResponse = MessageResponse(e.message)
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(messageResponse.toJson())
-        } catch (e: MessagingException) {
+        }
+        catch (e: MessagingException) {
+            log.debug("Ошибка отправки сообщения на почту")
             val messageResponse = MessageResponse("Ошибка отправки сообщения на почту. Повторите попытку позже")
             ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
-                .body(messageResponse.toJson()  )
+                .body(messageResponse.toJson())
         }
     }
 }

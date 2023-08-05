@@ -4,9 +4,9 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
 class JwtAuthentication : Authentication {
+
     private var authenticated = false
     private var login: String? = null
-
 
     fun getLogin() =
         login
