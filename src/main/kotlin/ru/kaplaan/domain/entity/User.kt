@@ -10,7 +10,6 @@ import org.hibernate.validator.constraints.Length
 import org.springframework.validation.annotation.Validated
 import kotlin.math.max
 
-@Validated
 @Entity
 @Table(name = "user_table")
 class User() {
