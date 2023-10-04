@@ -8,5 +8,5 @@ class KittynotesBackendApplication
 
 
 fun main(args: Array<String>){
-    runApplication<ru.kaplaan.KittynotesBackendApplication>(*args)
+    runApplication<KittynotesBackendApplication>(*args)
 }
