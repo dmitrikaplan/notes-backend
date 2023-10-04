@@ -1,4 +1,4 @@
 package ru.kaplaan.domain.exception
 
 
-class UserAlreadyRegisteredException(message: String?) : Exception(message)
+class UserAlreadyRegisteredException(message: String) : Exception(message)
