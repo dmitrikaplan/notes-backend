@@ -1,6 +1,6 @@
-package ru.kaplaan.web.dto
+package ru.kaplaan.web.dto.response.message
 
-class MessageDto(
+class MessageResponse(
     private var message: String?
 ) {
 
