@@ -49,17 +49,17 @@ class AuthServiceImpl(
     }
 
     // TODO: Полностью переделать восстановление пароля
-    override fun passwordRecovery(userIdentification: UserIdentification) {
-        val user = getUserByLoginOrEmail(userIdentification)
+    override fun passwordRecovery(loginOrEmail: String) {
+        val user = getUserByLoginOrEmail(loginOrEmail)
         val activationCode = UUID.randomUUID().toString().replace("-", "")
         user.setActivationCode(activationCode)
         emailService.recoveryPasswordByEmail(user.getEmail()!!, user.getLogin()!!, activationCode)
         userRepository.save(user)
     }
 
-    private fun getUserByLoginOrEmail(userIdentification: UserIdentification): User {
-        return userRepository.getUserByLogin(userIdentification.getLoginOrEmail())
-            ?: (userRepository.getUserByEmail(userIdentification.getLoginOrEmail())
+    private fun getUserByLoginOrEmail(loginOrEmail: String): User {
+        return userRepository.getUserByLogin(loginOrEmail)
+            ?: (userRepository.getUserByEmail(loginOrEmail)
                 ?: throw UserNotFoundException("Пользователь с такой почтой или логином не найден"))
     }
 
@@ -68,8 +68,8 @@ class AuthServiceImpl(
         refreshTokenRepository.save(refreshToken)
     }
 
-    private fun checkLogin(userIdentification: UserIdentification): User {
-        val user = getUserByLoginOrEmail(userIdentification)
+    fun checkLogin(userIdentification: UserIdentification): User {
+        val user = getUserByLoginOrEmail(userIdentification.getLoginOrEmail())
         val hashedPassword: String = cryptoService.getHash(user.getLogin()!!, userIdentification.getPassword())
         if (!userRepository.existsUserByLoginAndPasswordAndEmailAndActivated(
                 user.getLogin()!!,
