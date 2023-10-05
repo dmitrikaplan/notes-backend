@@ -1,4 +1,4 @@
-package ru.kaplaan.domain.exception.notes
+package ru.kaplaan.domain.exception.note
 
 class NoteCannotUpdatedException: Exception(){
     override val message: String
