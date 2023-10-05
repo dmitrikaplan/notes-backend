@@ -2,7 +2,7 @@ package ru.kaplaan.dto.mapper;
 
 import org.mapstruct.Mapper;
 import ru.kaplaan.domain.entity.Note;
-import ru.kaplaan.web.dto.NoteDto;
+import ru.kaplaan.web.dto.note.NoteDto;
 
 import java.util.List;
 

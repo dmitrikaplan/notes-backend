@@ -1,4 +1,4 @@
-package ru.kaplaan.domain.exception
+package ru.kaplaan.domain.exception.user
 
 class UserNotFoundException(message: String?) : Exception(message){
     override val message: String

@@ -1,19 +1,29 @@
-package ru.kaplaan.web.dto
+package ru.kaplaan.web.dto.note
 
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Null
+import ru.kaplaan.web.validation.OnCreate
+import ru.kaplaan.web.validation.OnUpdate
 
 class NoteDto(){
+    @NotNull(message = "Id must be not null", groups = [OnUpdate::class])
+    @Null(message = "Id must be null", groups = [OnCreate::class])
     private var id: Long? = null
+
     private var title: String? = null
-    @NotBlank
+
+    @NotBlank(message = "Text must be not blank", groups = [OnCreate::class])
     private var text: String? = null
-    @NotBlank
+
+    @NotBlank(message = "Owner must be not blank", groups = [OnCreate::class])
     private var owner: String? = null
 
     constructor(
         title: String? = null,
         text: String? = null,
-        owner: String? = null) : this() {
+        owner: String? = null
+    ) : this() {
         this.title = title
         this.text = text
         this.owner = owner

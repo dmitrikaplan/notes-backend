@@ -2,8 +2,8 @@ package ru.kaplaan.service.impl
 
 import org.springframework.stereotype.Service
 import ru.kaplaan.domain.entity.Note
-import ru.kaplaan.domain.exception.notes.NoteCannotBeAddedException
-import ru.kaplaan.domain.exception.notes.NoteCannotUpdatedException
+import ru.kaplaan.domain.exception.note.NoteCannotBeAddedException
+import ru.kaplaan.domain.exception.note.NoteCannotUpdatedException
 import ru.kaplaan.repository.NoteRepository
 import ru.kaplaan.service.NoteService
 

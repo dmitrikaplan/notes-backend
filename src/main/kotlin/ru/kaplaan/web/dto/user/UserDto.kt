@@ -1,4 +1,4 @@
-package ru.kaplaan.web.dto
+package ru.kaplaan.web.dto.user
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Pattern
@@ -6,17 +6,19 @@ import org.hibernate.validator.constraints.Length
 import ru.kaplaan.web.validation.OnCreate
 
 class UserDto(){
-    @Email(message = "Email must not be null", groups = [OnCreate::class])
+    @Email(message = "Email should fit the email pattern ", groups = [OnCreate::class])
     private var email: String? = null
+
     @Pattern(
         regexp = "^[a-zA-Z0-9]{6,320}$",
         message = "Login should fit the login pattern",
         groups = [OnCreate::class]
     )
     private var login: String? = null
+
     @Length(
         min = 8, max = 1024,
-        message = "The password must be greater than 8, but less than 1024",
+        message = "The password must be greater than 9, but less than 1025",
         groups = [OnCreate::class]
     )
     private var password: String? = null

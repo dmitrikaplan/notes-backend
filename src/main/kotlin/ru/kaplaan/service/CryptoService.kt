@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.kaplaan.domain.entity.Salt
 import ru.kaplaan.domain.entity.User
-import ru.kaplaan.domain.exception.UserNotFoundException
+import ru.kaplaan.domain.exception.user.UserNotFoundException
 import ru.kaplaan.repository.SaltRepository
 import java.math.BigInteger
 import java.security.MessageDigest
