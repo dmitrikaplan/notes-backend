@@ -3,15 +3,15 @@ package ru.kaplaan.service.impl
 import org.springframework.stereotype.Service
 import ru.kaplaan.domain.entity.RefreshToken
 import ru.kaplaan.domain.entity.User
-import ru.kaplaan.domain.exception.*
+import ru.kaplaan.domain.exception.user.*
 import ru.kaplaan.domain.jwt.JwtProvider
+import ru.kaplaan.domain.user.UserIdentification
 import ru.kaplaan.repository.RefreshTokenRepository
 import ru.kaplaan.repository.UserRepository
 import ru.kaplaan.service.AuthService
 import ru.kaplaan.service.CryptoService
 import ru.kaplaan.service.EmailService
-import ru.kaplaan.web.dto.JwtResponse
-import ru.kaplaan.web.dto.UserWithoutLoginOrEmail
+import ru.kaplaan.web.dto.response.jwt.JwtResponse
 import java.util.*
 
 @Service
@@ -33,8 +33,8 @@ class AuthServiceImpl(
         userRepository.save(user)
     }
 
-    override fun login(userWithoutLoginOrEmail: UserWithoutLoginOrEmail): JwtResponse {
-        val user = checkLogin(userWithoutLoginOrEmail)
+    override fun login(userIdentification: UserIdentification): JwtResponse {
+        val user = checkLogin(userIdentification)
         val accessToken = jwtProvider.generateJwtAccessToken(user)
         val refreshToken = jwtProvider.generateJwtRefreshToken(user)
         saveRefreshToken(user.getLogin()!!, refreshToken)
@@ -49,17 +49,17 @@ class AuthServiceImpl(
     }
 
     // TODO: Полностью переделать восстановление пароля
-    override fun passwordRecovery(userWithoutLoginOrEmail: UserWithoutLoginOrEmail) {
-        val user = getUserByLoginOrEmail(userWithoutLoginOrEmail)
+    override fun passwordRecovery(userIdentification: UserIdentification) {
+        val user = getUserByLoginOrEmail(userIdentification)
         val activationCode = UUID.randomUUID().toString().replace("-", "")
         user.setActivationCode(activationCode)
         emailService.recoveryPasswordByEmail(user.getEmail()!!, user.getLogin()!!, activationCode)
         userRepository.save(user)
     }
 
-    private fun getUserByLoginOrEmail(userWithoutLoginOrEmail: UserWithoutLoginOrEmail): User {
-        return userRepository.getUserByLogin(userWithoutLoginOrEmail.getLoginOrEmail())
-            ?: (userRepository.getUserByEmail(userWithoutLoginOrEmail.getLoginOrEmail())
+    private fun getUserByLoginOrEmail(userIdentification: UserIdentification): User {
+        return userRepository.getUserByLogin(userIdentification.getLoginOrEmail())
+            ?: (userRepository.getUserByEmail(userIdentification.getLoginOrEmail())
                 ?: throw UserNotFoundException("Пользователь с такой почтой или логином не найден"))
     }
 
@@ -68,9 +68,9 @@ class AuthServiceImpl(
         refreshTokenRepository.save(refreshToken)
     }
 
-    private fun checkLogin(userWithoutLoginOrEmail: UserWithoutLoginOrEmail): User {
-        val user = getUserByLoginOrEmail(userWithoutLoginOrEmail)
-        val hashedPassword: String = cryptoService.getHash(user.getLogin()!!, userWithoutLoginOrEmail.getPassword())
+    private fun checkLogin(userIdentification: UserIdentification): User {
+        val user = getUserByLoginOrEmail(userIdentification)
+        val hashedPassword: String = cryptoService.getHash(user.getLogin()!!, userIdentification.getPassword())
         if (!userRepository.existsUserByLoginAndPasswordAndEmailAndActivated(
                 user.getLogin()!!,
                 hashedPassword,
