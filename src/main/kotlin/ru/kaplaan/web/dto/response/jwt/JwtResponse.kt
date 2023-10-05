@@ -1,4 +1,4 @@
-package ru.kaplaan.web.dto
+package ru.kaplaan.web.dto.response.jwt
 
 import kotlinx.serialization.Serializable
 
