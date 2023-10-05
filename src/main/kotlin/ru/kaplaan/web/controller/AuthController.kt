@@ -1,5 +1,8 @@
 package ru.kaplaan.web.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.mail.MessagingException
 import org.hibernate.validator.constraints.Length
 import org.slf4j.LoggerFactory
@@ -17,10 +20,12 @@ import ru.kaplaan.web.dto.response.message.MessageResponse
 import ru.kaplaan.web.dto.user.UserDto
 import ru.kaplaan.web.dto.user.UserIdentificationDto
 import ru.kaplaan.web.validation.OnCreate
+import ru.kaplaan.web.validation.OnRecovery
 
 @Validated
 @Controller
 @RequestMapping("/api/v1/auth/")
+@Tag(name = "Auth Controller", description = "Контроллер аутентификации")
 class AuthController (
     private val authService: AuthService,
     private val userMapper: UserMapper,
@@ -30,8 +35,12 @@ class AuthController (
     private val log = LoggerFactory.getLogger(AuthController::class.java)
 
     @PostMapping("registration")
+    @Operation(
+        summary = "Регистрация пользователя",
+    )
     fun registration(
         @RequestBody(required = true) @Validated(OnCreate::class)
+        @Parameter(description = "логин, почта и пароль пользователя в формате json", required = true)
         userDto: UserDto
     ): ResponseEntity<MessageResponse> {
         return try {
@@ -68,9 +77,13 @@ class AuthController (
         }
     }
 
+    @Operation(
+        summary = "Авторизация пользователя"
+    )
     @PostMapping("login")
     fun login(
         @RequestBody(required = true) @Validated(OnCreate::class)
+        @Parameter(description = "логин или почта пользователя и пароль в формате json", required = true)
         userIdentificationDto: UserIdentificationDto
     ): ResponseEntity<JwtResponse> {
         return try {
@@ -97,8 +110,12 @@ class AuthController (
     }
 
     @GetMapping("activation/{code}")
+    @Operation(
+        summary = "Активация аккаунта пользователя"
+    )
     fun activateAccount(
         @PathVariable("code", required = true) @Length(min = 1)
+        @Parameter(description = "код активации аккаунта", required = true)
         code: String
     ): ResponseEntity<String>{
         return try {
@@ -112,13 +129,17 @@ class AuthController (
     }
 
     @PostMapping("recovery")
+    @Operation(
+        summary = "Восстановление доступа пользователя"
+    )
     fun passwordRecovery(
-        @RequestBody(required = true) @Validated(OnCreate::class)
+        @RequestBody(required = true) @Validated(OnRecovery::class)
+        @Parameter(description = "логин или почта пользователя и пароль в формате json", required = true)
         userIdentificationDto: UserIdentificationDto
     ): ResponseEntity<MessageResponse> {
         return try {
             val userIdentification = userIdentificationMapper.toEntity(userIdentificationDto)
-            authService.passwordRecovery(userIdentification)
+            authService.passwordRecovery(userIdentification.getLoginOrEmail())
             val messageResponse = MessageResponse("Код восстановления отправлен Вам на почту")
             ResponseEntity.status(HttpStatus.OK).body(messageResponse)
         }

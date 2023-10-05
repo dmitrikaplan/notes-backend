@@ -1,5 +1,9 @@
 package ru.kaplaan.web.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.constraints.Min
 import org.slf4j.LoggerFactory
@@ -18,16 +22,23 @@ import ru.kaplaan.web.validation.OnCreate
 import ru.kaplaan.web.validation.OnUpdate
 
 @Validated
-@Controller
+@RestController
 @RequestMapping("/api/v1/notes")
+@Tag(name = "Note Controller", description = "Контроллер заметок")
 class NoteController(
     private val noteService: NoteService,
     private val noteMapper: NoteMapper
 ) {
     private val log = LoggerFactory.getLogger(NoteController::class.java)
     @PostMapping("add")
+    @Operation(
+        summary = "Добавление заметки",
+        description = "Добавление заметки пользователя, который произвел вход в аккаунт, на сервер"
+    )
+    @SecurityRequirement(name = "JWT")
     fun addNotes(
         @RequestBody(required = true) @Validated(OnCreate::class)
+        @Parameter(description = "id, заголовок, текст и владелец заметки", required = true)
         noteDto: NoteDto
     ): ResponseEntity<NoteDto> {
         return try {
@@ -41,8 +52,14 @@ class NoteController(
     }
 
     @PostMapping("update")
+    @Operation(
+        summary = "Обновление заметки",
+        description = "Обновление заметки пользователя"
+    )
+    @SecurityRequirement(name = "JWT")
     fun updateNote(
         @RequestBody(required = true) @Validated(OnUpdate::class)
+        @Parameter(description = "id, заголовок, текст и владелец заметки", required = true)
         noteDto: NoteDto
     ): ResponseEntity<NoteDto> {
         return try {
@@ -58,8 +75,14 @@ class NoteController(
     }
 
     @DeleteMapping("delete")
+    @Operation(
+        summary = "Удаление заметки",
+        description = "Удаление заметки пользователя"
+    )
+    @SecurityRequirement(name = "JWT")
     fun deleteNote(
         @RequestBody(required = true) @Validated @Min(0)
+        @Parameter(description = "id заметки, которую надо удалить", required = true)
         id: Long
     ): ResponseEntity<MessageResponse> {
         return try {
@@ -75,7 +98,11 @@ class NoteController(
     }
 
     @GetMapping("get/all")
-    @ResponseBody
+    @Operation(
+        summary = "Получение заметок",
+        description = "Получение заметок пользователя с сервера"
+    )
+    @SecurityRequirement(name = "JWT")
     fun getNotes(): ResponseEntity<List<NoteDto>> {
         val notes = noteService.allNotes()
         val notesDto = noteMapper.toDto(notes)
