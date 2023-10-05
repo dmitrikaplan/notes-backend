@@ -1,3 +1,3 @@
-package ru.kaplaan.domain.exception
+package ru.kaplaan.domain.exception.user
 
 class NotFoundUserByActivationCode : Exception()

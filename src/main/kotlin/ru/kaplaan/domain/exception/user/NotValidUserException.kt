@@ -1,4 +1,4 @@
-package ru.kaplaan.domain.exception
+package ru.kaplaan.domain.exception.user
 
 class NotValidUserException : Exception(){
     override val message: String

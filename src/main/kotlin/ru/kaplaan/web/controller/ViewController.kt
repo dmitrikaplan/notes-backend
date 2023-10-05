@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 @RequestMapping("/api/v1/auth")
 class ViewController {
     @GetMapping("{activationCode}")
-    fun passwordRecovery(@PathVariable("activationCode") code: String?, model: Model): String {
+    fun passwordRecovery(@PathVariable("activationCode") code: String, model: Model): String {
         model.addAttribute("code", code)
         return "recovery"
     }
