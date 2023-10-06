@@ -17,7 +17,7 @@ class NoteDto(){
     @Schema(description = "Заголовок заметки", example = "Планы на день")
     private var title: String? = null
 
-    @Schema(description = "Текст заметки", example = "1) Сделать лабораторную работу\n2)Поспать")
+    @Schema(description = "Текст заметки", example = "1) Сделать лабораторную работу")
     @NotBlank(message = "Text must be not blank", groups = [OnCreate::class])
     private var text: String? = null
 
