@@ -15,6 +15,7 @@ import ru.kaplaan.domain.filter.JwtFilter
 class SecurityConfig (
     private val jwtFilter: JwtFilter
 ) {
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
@@ -24,8 +25,12 @@ class SecurityConfig (
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeHttpRequests()
-            .requestMatchers(HttpMethod.GET, "/api/v1/auth/activation/{code}", "/api/v1/test").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/registration").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/v1/auth/activation/{code}").permitAll()
+            .requestMatchers(HttpMethod.GET, "/swagger-ui/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v3/api-docs/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/v1/auth/registration").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
