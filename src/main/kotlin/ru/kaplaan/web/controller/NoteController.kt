@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Min
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import ru.kaplaan.domain.exception.note.NoteCannotBeAddedException
@@ -103,9 +102,8 @@ class NoteController(
         description = "Получение заметок пользователя с сервера"
     )
     @SecurityRequirement(name = "JWT")
-    fun getNotes(): ResponseEntity<List<NoteDto>> {
+    fun getNotes(): List<NoteDto> {
         val notes = noteService.allNotes()
-        val notesDto = noteMapper.toDto(notes)
-        return ResponseEntity.status(HttpStatus.OK).body(notesDto)
+        return noteMapper.toDto(notes)
     }
 }
