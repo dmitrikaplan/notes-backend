@@ -5,8 +5,15 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Contact
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.servers.Server
 
 @OpenAPIDefinition(
+    servers = [
+        Server(
+            url = "https://kaplaan.ru/backend/app",
+            description = "Default server url"
+        )
+    ],
     info = Info(
         title = "Notes Api",
         description = "Api для приложения заметок",
