@@ -16,7 +16,7 @@ data class UserIdentificationDto(
         message = "The password must be greater than 7, but less than 321",
         groups = [OnCreate::class]
     )
-    private val loginOrEmail: String,
+    val loginOrEmail: String,
 
     @Schema(description = "пароль пользователя", example = "123456")
     @Length(
@@ -24,11 +24,5 @@ data class UserIdentificationDto(
         message = "The password must be greater than 9, but less than 1025",
         groups = [OnCreate::class]
     )
-    private val password: String
-) {
-    fun getLoginOrEmail() =
-        loginOrEmail
-
-    fun getPassword() =
-        password
-}
+    val password: String
+)

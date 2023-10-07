@@ -7,10 +7,10 @@ import org.hibernate.validator.constraints.Length
 import ru.kaplaan.web.validation.OnCreate
 
 @Schema(description = "Сущность пользователя")
-class UserDto(){
+data class UserDto(
     @Schema(description = "Почта пользователя", example = "account@yandex.ru")
     @Email(message = "Email should fit the email pattern ", groups = [OnCreate::class])
-    private var email: String? = null
+    val email: String,
 
     @Schema(description = "Логин пользователя", example = "username")
     @Pattern(
@@ -18,7 +18,7 @@ class UserDto(){
         message = "Login should fit the login pattern",
         groups = [OnCreate::class]
     )
-    private var login: String? = null
+    val login: String,
 
     @Schema(description = "Пароль пользователя", example = "123456")
     @Length(
@@ -26,40 +26,6 @@ class UserDto(){
         message = "The password must be greater than 9, but less than 1025",
         groups = [OnCreate::class]
     )
-    private var password: String? = null
+    val password: String,
 
-    constructor(
-        email: String,
-        login: String,
-        password: String,
-    ) : this() {
-        this.email = email
-        this.login = login
-        this.password = password
-    }
-
-    fun getEmail() =
-        email
-
-    fun setEmail(email: String){
-        this.email = email
-    }
-
-    fun getLogin() =
-        login
-
-    fun setLogin(login: String){
-        this.login = login
-    }
-
-    fun getPassword() =
-        password
-
-    fun setPassword(password: String){
-        this.password = password
-    }
-
-    override fun toString(): String {
-        return "User(email = $email, login = $login, password = $password)"
-    }
-}
+)
