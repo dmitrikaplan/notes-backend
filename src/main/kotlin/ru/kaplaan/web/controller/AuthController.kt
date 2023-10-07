@@ -46,7 +46,7 @@ class AuthController (
         return try {
             authService.registration(userMapper.toEntity(userDto))
             val messageResponse = MessageResponse("Код подтверждения отправлен вам на почту")
-            log.info("Код подтверждения для пользователя ${userDto.getLogin()!!.uppercase()} отправлен на почту")
+            log.info("Код подтверждения для пользователя ${userDto.login.uppercase()} отправлен на почту")
             ResponseEntity.status(HttpStatus.OK).body(messageResponse)
         } 
         catch (e: UserAlreadyRegisteredException) {
