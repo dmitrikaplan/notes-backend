@@ -10,22 +10,22 @@ import org.springframework.mail.javamail.JavaMailSenderImpl
 @Configuration
 class MailConfig {
     @Value("\${spring.mail.host}")
-    private var host: String? = null
+    private lateinit var host: String
 
     @Value("\${spring.mail.username}")
-    private var username: String? = null
+    private lateinit var username: String
 
     @Value("\${spring.mail.password}")
-    private var password: String? = null
+    private lateinit var password: String
 
     @Value("\${spring.mail.port}")
     private var port = 0
 
     @Value("\${spring.mail.protocol}")
-    private var protocol: String? = null
+    private lateinit var protocol: String
 
     @Value("\${mail.debug}")
-    private var debug: String? = null
+    private lateinit var debug: String
 
     @Bean
     fun getMailSender(): JavaMailSender {
@@ -46,42 +46,24 @@ class MailConfig {
     fun getHost() =
         host
 
-    fun setHost(host: String){
-        this.host = host
-    }
 
     fun getUsername() =
         username
 
-    fun setUsername(username: String){
-        this.username = username
-    }
 
     fun getPassword() =
         password
 
-    fun setPassword(password: String){
-        this.password = password
-    }
 
     fun getPort() =
         port
 
-    fun setPort(port: Int){
-        this.port = port
-    }
 
     fun getProtocol() =
         protocol
 
-    fun setProtocol(protocol: String){
-        this.protocol = protocol
-    }
 
     fun getDebug() =
         debug
 
-    fun setDebug(debug: String){
-        this.debug = debug
-    }
 }
