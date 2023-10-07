@@ -139,7 +139,7 @@ class AuthController (
     ): ResponseEntity<MessageResponse> {
         return try {
             val userIdentification = userIdentificationMapper.toEntity(userIdentificationDto)
-            authService.passwordRecovery(userIdentification.getLoginOrEmail())
+            authService.passwordRecovery(userIdentification.loginOrEmail)
             val messageResponse = MessageResponse("Код восстановления отправлен Вам на почту")
             ResponseEntity.status(HttpStatus.OK).body(messageResponse)
         }

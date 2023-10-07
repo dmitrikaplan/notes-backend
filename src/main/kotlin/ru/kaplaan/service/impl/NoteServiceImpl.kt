@@ -22,7 +22,7 @@ class NoteServiceImpl(
     }
 
     override fun updateNote(note: Note): Note {
-        return noteRepository.updateNote(note.getText(), note.getId()) ?: throw NoteCannotUpdatedException()
+        return noteRepository.updateNote(note.text, note.id) ?: throw NoteCannotUpdatedException()
     }
 
     override fun deleteNote(id: Long) {

@@ -20,8 +20,8 @@ class CryptoService(private val saltRepository: SaltRepository) {
     fun getHash(login: String, password: String): String {
         val salts: Salt = saltRepository.getSaltByOwner(login)
             ?: throw UserNotFoundException("Пользователь с данным логином и паролем не найден")
-        val salt1 = salts.getSalt1()
-        val salt2 = salts.getSalt2()
+        val salt1 = salts.salt1
+        val salt2 = salts.salt2
         val hash = md5(salt1 + password + salt2)
         return md5(hash)
     }
@@ -29,9 +29,13 @@ class CryptoService(private val saltRepository: SaltRepository) {
     fun doHash(user: User): String {
         val salt1 = generateSalt(20)
         val salt2 = generateSalt(20)
-        val salt = Salt(salt1, salt2, user.getLogin()!!)
+        val salt = Salt(salt1, salt2, user.login)
         saltRepository.save(salt)
-        val hash = md5(salt1 + user.getPassword() + salt2)
+
+        val stringBuilder = StringBuilder()
+        stringBuilder.append(salt1).append(user.password).append(salt2)
+
+        val hash = md5(stringBuilder.toString())
         return md5(hash)
     }
 
@@ -40,7 +44,7 @@ class CryptoService(private val saltRepository: SaltRepository) {
             val md = MessageDigest.getInstance("MD5")
             BigInteger(1, md.digest(password.toByteArray())).toString(16)
         } catch (e: NoSuchAlgorithmException) {
-            log.error("не найден алгоритм шифрования")
+            log.error("Не найден алгоритм шифрования")
             ""
         }
     }
@@ -57,14 +61,27 @@ class CryptoService(private val saltRepository: SaltRepository) {
     fun generateKeyForJwt(user: User): String {
         val salt1 = generateSalt(120)
         val salt2 = generateSalt(120)
-        return md5(md5(salt1 + user.getPassword()) + user.getLogin() + salt2)
+
+        val stringBuilder = StringBuilder()
+        stringBuilder.append(salt1).append(user.password).append(user.login).append(salt2)
+
+        return md5(md5(stringBuilder.toString()))
     }
 
     fun getIntoBase64(user: User): String {
         val salt1 = generateSalt(256)
         val salt2 = generateSalt(256)
         val salt3 = generateSalt(30)
-        val secret = md5(salt2 + user.getLogin() + md5(salt1 + user.getPassword())) + salt3
+
+        val stringBuilder1 = StringBuilder()
+            .append(salt1).append(user.password)
+
+        val stringBuilder2 = StringBuilder()
+            .append(salt2).append(user.login).append(md5(stringBuilder1.toString()))
+
+        val secret = StringBuilder()
+            .append(md5(stringBuilder2.toString())).append(salt3).toString()
+
         return Encoders.BASE64.encode(secret.toByteArray())
     }
 }

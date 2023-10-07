@@ -19,10 +19,10 @@ class EmailServiceImpl @Autowired constructor(
 ) : EmailService {
 
     @Value("\${kittynotes.host}")
-    private var host: String? = null
+    private lateinit var host: String
 
     @Value("\${spring.mail.username}")
-    private var mail: String? = null
+    private lateinit var mail: String
 
     override fun activateUserByEmail(emailTo: String, login: String, activationCode: String) {
         val templateLocation = KindsOfEmailMessages.REGISTRATION_EMAIL.pathOfTemplate

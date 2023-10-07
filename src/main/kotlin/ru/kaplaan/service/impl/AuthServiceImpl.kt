@@ -27,9 +27,9 @@ class AuthServiceImpl(
         checkRegistration(user)
         val hashedPassword: String = cryptoService.doHash(user)
         val activationCode = UUID.randomUUID().toString().replace("-", "")
-        user.setPassword(hashedPassword)
-        user.setActivationCode(activationCode)
-        emailService.activateUserByEmail(user.getEmail()!!, user.getLogin()!!, activationCode)
+        user.password = hashedPassword
+        user.activationCode = activationCode
+        emailService.activateUserByEmail(user.email, user.login, activationCode)
         userRepository.save(user)
     }
 
@@ -37,14 +37,14 @@ class AuthServiceImpl(
         val user = checkLogin(userIdentification)
         val accessToken = jwtProvider.generateJwtAccessToken(user)
         val refreshToken = jwtProvider.generateJwtRefreshToken(user)
-        saveRefreshToken(user.getLogin()!!, refreshToken)
+        saveRefreshToken(user.login, refreshToken)
         return JwtResponse(accessToken, refreshToken)
     }
 
     override fun activateAccount(code: String) {
         val user = userRepository.getUserByActivationCode(code) ?: throw NotFoundUserByActivationCode()
-        user.setActivationCode(null)
-        user.setActivated(true)
+        user.activationCode = null
+        user.activated = true
         userRepository.save(user)
     }
 
@@ -52,8 +52,8 @@ class AuthServiceImpl(
     override fun passwordRecovery(loginOrEmail: String) {
         val user = getUserByLoginOrEmail(loginOrEmail)
         val activationCode = UUID.randomUUID().toString().replace("-", "")
-        user.setActivationCode(activationCode)
-        emailService.recoveryPasswordByEmail(user.getEmail()!!, user.getLogin()!!, activationCode)
+        user.activationCode = activationCode
+        emailService.recoveryPasswordByEmail(user.email, user.login, activationCode)
         userRepository.save(user)
     }
 
@@ -69,12 +69,12 @@ class AuthServiceImpl(
     }
 
     fun checkLogin(userIdentification: UserIdentification): User {
-        val user = getUserByLoginOrEmail(userIdentification.getLoginOrEmail())
-        val hashedPassword: String = cryptoService.getHash(user.getLogin()!!, userIdentification.getPassword())
+        val user = getUserByLoginOrEmail(userIdentification.loginOrEmail)
+        val hashedPassword: String = cryptoService.getHash(user.login, userIdentification.password)
         if (!userRepository.existsUserByLoginAndPasswordAndEmailAndActivated(
-                user.getLogin()!!,
+                user.login,
                 hashedPassword,
-                user.getEmail()!!,
+                user.email,
                 true
             )
         ) throw UserNotFoundException("Пользователь с данным логином и паролем не найден")
@@ -82,11 +82,11 @@ class AuthServiceImpl(
     }
 
     private fun checkRegistration(user: User): User {
-        validateActivationCode(user.getActivationCode(), false)
-        validateActivated(user.getActivated(), false)
+        validateActivationCode(user.activationCode, false)
+        validateActivated(user.activated!!, false)
         if (userRepository.existsUserByLoginOrEmailAndActivated(
-                user.getLogin()!!,
-                user.getEmail()!!,
+                user.login,
+                user.email,
                 true
             )
         ) throw UserAlreadyRegisteredException("Пользователь с таким логином или паролем уже существует")

@@ -42,28 +42,4 @@ class MailConfig {
         return mailSender
     }
 
-
-    fun getHost() =
-        host
-
-
-    fun getUsername() =
-        username
-
-
-    fun getPassword() =
-        password
-
-
-    fun getPort() =
-        port
-
-
-    fun getProtocol() =
-        protocol
-
-
-    fun getDebug() =
-        debug
-
 }

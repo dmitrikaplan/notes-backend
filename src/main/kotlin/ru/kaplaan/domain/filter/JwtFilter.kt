@@ -12,12 +12,13 @@ import ru.kaplaan.domain.jwt.JwtProvider
 import ru.kaplaan.domain.jwt.JwtUtils
 
 @Component
-class JwtFilter : GenericFilterBean() {
-    private val jwtProvider: JwtProvider? = null
+class JwtFilter(
+    private val jwtProvider: JwtProvider
+) : GenericFilterBean() {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val token = getTokenFromRequest(request as HttpServletRequest)
-        if (token != null && jwtProvider!!.validateAccessToken(token)) {
+        if (token != null && jwtProvider.validateAccessToken(token)) {
             val claims = jwtProvider.getAccessClaims(token)
             val jwtInfoToken = JwtUtils.generate(claims)
             jwtInfoToken.isAuthenticated = true

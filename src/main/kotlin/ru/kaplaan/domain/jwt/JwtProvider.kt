@@ -17,9 +17,11 @@ import javax.crypto.SecretKey
 @Component
 class JwtProvider (private val cryptoService: CryptoService) {
 
-    private var jwtAccessToken: SecretKey? = null
-    private var jwtRefreshToken: SecretKey? = null
+    private lateinit var jwtAccessToken: SecretKey
+    private lateinit var jwtRefreshToken: SecretKey
+
     private val log = LoggerFactory.getLogger(JwtProvider::class.java)
+
     private fun setJwtAccessToken(user: User?) {
         val data = cryptoService.getIntoBase64(user!!)
         jwtAccessToken = Keys.hmacShaKeyFor(Decoders.BASE64.decode(data))
@@ -35,7 +37,7 @@ class JwtProvider (private val cryptoService: CryptoService) {
         val now = LocalDateTime.now()
         val accessExpirationInstant = now.plusHours(1).atZone(ZoneId.systemDefault()).toInstant()
         val accessExpiration = Date.from(accessExpirationInstant)
-        return Jwts.builder().setSubject(user.getLogin()).setExpiration(accessExpiration).signWith(jwtAccessToken)
+        return Jwts.builder().setSubject(user.login).setExpiration(accessExpiration).signWith(jwtAccessToken)
             .compact()
     }
 
@@ -44,7 +46,7 @@ class JwtProvider (private val cryptoService: CryptoService) {
         val now = LocalDateTime.now()
         val refreshExpirationInstant = now.plusDays(30).atZone(ZoneId.systemDefault()).toInstant()
         val refreshExpiration = Date.from(refreshExpirationInstant)
-        return Jwts.builder().setExpiration(refreshExpiration).setSubject(user.getLogin()).signWith(jwtRefreshToken)
+        return Jwts.builder().setExpiration(refreshExpiration).setSubject(user.login).signWith(jwtRefreshToken)
             .compact()
     }
 

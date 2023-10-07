@@ -1,40 +1,19 @@
 package ru.kaplaan.domain.entity
 
 import jakarta.persistence.*
+import kotlin.math.log
 
 @Entity
-class RefreshToken() {
-
+data class RefreshToken(
+    var refreshToken: String,
+    var login: String
+){
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private var id: Long? = null
-    private var refreshToken: String? = null
-    private var login: String? = null
+    var id: Long? = null
 
-    constructor(refreshToken: String, login: String): this() {
-        this.refreshToken = refreshToken
-        this.login = login
-    }
-
-    fun getId() =
-        id
-
-    fun setId(id: Long){
+    constructor(id: Long, refreshToken: String, login: String): this(refreshToken, login){
         this.id = id
-    }
-
-    fun getRefreshToken() =
-        refreshToken
-
-    fun setRefreshToken(refreshToken: String){
-        this.refreshToken = refreshToken
-    }
-
-    fun getLogin() =
-        login
-
-    fun setLogin(login: String){
-        this.login = login
     }
 }

@@ -12,73 +12,48 @@ import kotlin.math.max
 
 @Entity
 @Table(name = "user_table")
-class User() {
+class User(){
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private var id: Long? = null
-    @Email
-    private var email: String? = null
-    @Pattern(regexp = "^[a-zA-Z0-9]{6,320}$")
-    private var login: String? = null
-    @Length(min = 8, max = 1024)
-    private var password: String? = null
-    private var activated = false
-    private var activationCode: String? = null
+    var id: Long? = null
+
+    lateinit var email: String
+    lateinit var login: String
+    lateinit var password: String
+
+    var activated: Boolean? = false
+
+    var activationCode: String? = null
+
+    constructor(
+        id: Long,
+        email: String,
+        login: String,
+        password: String,
+        activated: Boolean,
+        activationCode: String?
+    ): this(){
+        this.id = id
+        this.email = email
+        this.login = login
+        this.password = password
+        this.activated = activated
+        this.activationCode = activationCode
+    }
 
     constructor(
         email: String,
         login: String,
         password: String,
-    ) : this() {
+        activated: Boolean,
+        activationCode: String?
+    ): this(){
         this.email = email
         this.login = login
         this.password = password
-    }
-
-    fun getId() =
-        id
-
-    fun setId(id: Long) {
-        this.id = id
-    }
-
-    fun getEmail() =
-        email
-
-    fun setEmail(email: String){
-        this.email = email
-    }
-
-    fun getLogin() =
-        login
-
-    fun setLogin(login: String){
-        this.login = login
-    }
-
-    fun getPassword() =
-        password
-
-    fun setPassword(password: String){
-        this.password = password
-    }
-
-    fun getActivated() =
-        activated
-
-    fun setActivated(activated: Boolean){
         this.activated = activated
-    }
-
-    fun getActivationCode() =
-        activationCode
-
-    fun setActivationCode(activationCode: String?){
         this.activationCode = activationCode
-    }
-
-    override fun toString(): String {
-        return "User(id = $id, email = $email, login = $login, password = $password)"
     }
 }
