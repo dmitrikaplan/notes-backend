@@ -4,22 +4,23 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Pattern
 import org.hibernate.validator.constraints.Length
+import ru.kaplaan.domain.entity.user.Role
 import ru.kaplaan.web.validation.OnCreate
 
 @Schema(description = "Сущность пользователя")
-class UserDto(){
+class UserDto(
 
     @Schema(description = "Почта пользователя", example = "account@yandex.ru")
     @Email(message = "Email should fit the email pattern ", groups = [OnCreate::class])
-    lateinit var email: String
+    var email: String,
 
     @Schema(description = "Логин пользователя", example = "username")
     @Pattern(
         regexp = "^[a-zA-Z0-9]{6,320}$",
-        message = "Login should fit the login pattern",
+        message = "Login should fit the username pattern",
         groups = [OnCreate::class]
     )
-    lateinit var login: String
+    var username: String,
 
     @Schema(description = "Пароль пользователя", example = "123456")
     @Length(
@@ -27,12 +28,9 @@ class UserDto(){
         message = "The password must be greater than 9, but less than 1025",
         groups = [OnCreate::class]
     )
-    lateinit var password: String
+    var password: String,
 
 
-    constructor(email: String, login: String, password: String): this(){
-        this.email = email
-        this.login = login
-        this.password = password
-    }
-}
+    @Schema(description = "Роль пользователя", example = "USER_ROLE")
+    var role: String
+)

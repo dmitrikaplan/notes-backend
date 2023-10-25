@@ -16,9 +16,11 @@ import ru.kaplaan.domain.exception.note.NoteCannotUpdatedException
 import ru.kaplaan.service.NoteService
 import ru.kaplaan.web.dto.response.message.MessageResponse
 import ru.kaplaan.web.dto.note.NoteDto
-import ru.kaplaan.dto.mapper.NoteMapper
+import ru.kaplaan.web.mapper.toDto
+import ru.kaplaan.web.mapper.toEntity
 import ru.kaplaan.web.validation.OnCreate
 import ru.kaplaan.web.validation.OnUpdate
+import java.security.Principal
 
 @Validated
 @RestController
@@ -26,7 +28,6 @@ import ru.kaplaan.web.validation.OnUpdate
 @Tag(name = "Note Controller", description = "Контроллер заметок")
 class NoteController(
     private val noteService: NoteService,
-    private val noteMapper: NoteMapper
 ) {
     private val log = LoggerFactory.getLogger(NoteController::class.java)
     @PostMapping("add")
@@ -38,11 +39,12 @@ class NoteController(
     fun addNotes(
         @RequestBody(required = true) @Validated(OnCreate::class)
         @Parameter(description = "id, заголовок, текст и владелец заметки", required = true)
-        noteDto: NoteDto
+        noteDto: NoteDto,
+        principal: Principal
     ): ResponseEntity<NoteDto> {
         return try {
-            val returnedNote = noteService.addNote(noteMapper.toEntity(noteDto))
-            ResponseEntity.status(HttpStatus.OK).body(noteMapper.toDto(returnedNote))
+            val returnedNote = noteService.addNote(noteDto.toEntity(principal.name))
+            ResponseEntity.status(HttpStatus.OK).body(returnedNote.toDto())
         }
         catch (e: NoteCannotBeAddedException) {
             log.debug(e.message)
@@ -59,12 +61,13 @@ class NoteController(
     fun updateNote(
         @RequestBody(required = true) @Validated(OnUpdate::class)
         @Parameter(description = "id, заголовок, текст и владелец заметки", required = true)
-        noteDto: NoteDto
+        noteDto: NoteDto,
+        principal: Principal
     ): ResponseEntity<NoteDto> {
         return try {
-            val note = noteMapper.toEntity(noteDto)
+            val note = noteDto.toEntity(principal.name)
             val updatedNote = noteService.updateNote(note)
-            ResponseEntity.status(HttpStatus.OK).body(noteMapper.toDto(updatedNote))
+            ResponseEntity.status(HttpStatus.OK).body(updatedNote.toDto())
         }
         catch (e: NoteCannotUpdatedException) {
             log.debug(e.message)
@@ -104,6 +107,6 @@ class NoteController(
     @SecurityRequirement(name = "JWT")
     fun getNotes(): List<NoteDto> {
         val notes = noteService.allNotes()
-        return noteMapper.toDto(notes)
+        return notes.toDto()
     }
 }

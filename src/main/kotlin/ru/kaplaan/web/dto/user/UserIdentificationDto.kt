@@ -9,14 +9,14 @@ import ru.kaplaan.web.validation.OnRecovery
 
 @Schema(description = "Сущность пользователя для идентификации")
 data class UserIdentificationDto(
-    @Schema(description = "логин или пароль пользователя", example = "account@yandex.ru")
-    @NotNull(message = "Login or Email must be not null", groups = [OnCreate::class, OnRecovery::class])
+    @Schema(description = "username или пароль пользователя", example = "account@yandex.ru")
+    @NotNull(message = "Username or Email must be not null", groups = [OnCreate::class, OnRecovery::class])
     @Length(
         min = 6, max = 320,
         message = "The password must be greater than 7, but less than 321",
         groups = [OnCreate::class]
     )
-    val loginOrEmail: String,
+    val usernameOrEmail: String,
 
     @Schema(description = "пароль пользователя", example = "123456")
     @Length(

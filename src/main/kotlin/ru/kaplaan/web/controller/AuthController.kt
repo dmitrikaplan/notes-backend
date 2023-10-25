@@ -12,13 +12,12 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import ru.kaplaan.domain.exception.user.*
-import ru.kaplaan.dto.mapper.UserIdentificationMapper
-import ru.kaplaan.dto.mapper.UserMapper
 import ru.kaplaan.service.AuthService
 import ru.kaplaan.web.dto.response.jwt.JwtResponse
 import ru.kaplaan.web.dto.response.message.MessageResponse
 import ru.kaplaan.web.dto.user.UserDto
 import ru.kaplaan.web.dto.user.UserIdentificationDto
+import ru.kaplaan.web.mapper.toEntity
 import ru.kaplaan.web.validation.OnCreate
 import ru.kaplaan.web.validation.OnRecovery
 
@@ -26,10 +25,8 @@ import ru.kaplaan.web.validation.OnRecovery
 @Controller
 @RequestMapping("/api/v1/auth/")
 @Tag(name = "Auth Controller", description = "Контроллер аутентификации")
-class AuthController (
-    private val authService: AuthService,
-    private val userMapper: UserMapper,
-    private val userIdentificationMapper: UserIdentificationMapper
+class AuthController(
+    private val authService: AuthService
 ){
 
     private val log = LoggerFactory.getLogger(AuthController::class.java)
@@ -44,9 +41,9 @@ class AuthController (
         userDto: UserDto
     ): ResponseEntity<MessageResponse> {
         return try {
-            authService.registration(userMapper.toEntity(userDto))
+            authService.register(userDto.toEntity())
             val messageResponse = MessageResponse("Код подтверждения отправлен вам на почту")
-            log.info("Код подтверждения для пользователя ${userDto.login.uppercase()} отправлен на почту")
+            log.info("Код подтверждения для пользователя ${userDto.username.uppercase()} отправлен на почту")
             ResponseEntity.status(HttpStatus.OK).body(messageResponse)
         } 
         catch (e: UserAlreadyRegisteredException) {
@@ -75,6 +72,11 @@ class AuthController (
             val messageResponse = MessageResponse(e.message)
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse)
         }
+        catch (e: RoleNotFoundException){
+            log.debug(e.message)
+            val messageResponse = MessageResponse(e.message)
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse)
+        }
     }
 
     @Operation(
@@ -87,8 +89,8 @@ class AuthController (
         userIdentificationDto: UserIdentificationDto
     ): ResponseEntity<JwtResponse> {
         return try {
-            val userIdentification = userIdentificationMapper.toEntity(userIdentificationDto)
-            val jwtResponse = authService.login(userIdentification)
+            val userIdentification = userIdentificationDto.toEntity()
+            val jwtResponse = authService.authenticate(userIdentification)
             ResponseEntity.status(HttpStatus.OK).body(jwtResponse)
         } 
         catch (e: UserNotFoundException) {
@@ -138,8 +140,8 @@ class AuthController (
         userIdentificationDto: UserIdentificationDto
     ): ResponseEntity<MessageResponse> {
         return try {
-            val userIdentification = userIdentificationMapper.toEntity(userIdentificationDto)
-            authService.passwordRecovery(userIdentification.loginOrEmail)
+            val userIdentification = userIdentificationDto.toEntity()
+            authService.passwordRecovery(userIdentification)
             val messageResponse = MessageResponse("Код восстановления отправлен Вам на почту")
             ResponseEntity.status(HttpStatus.OK).body(messageResponse)
         }
