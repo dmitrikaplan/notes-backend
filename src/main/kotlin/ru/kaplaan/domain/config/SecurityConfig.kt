@@ -3,17 +3,25 @@ package ru.kaplaan.domain.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import ru.kaplaan.domain.filter.JwtFilter
+import ru.kaplaan.domain.security.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig (
-    private val jwtFilter: JwtFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val userDetailsService: UserDetailsService
 ) {
 
     @Bean
@@ -33,8 +41,28 @@ class SecurityConfig (
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
             .anyRequest().authenticated()
             .and()
-            .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
+            .authenticationProvider(authenticationProvider())
+            .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
+    }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder =
+        BCryptPasswordEncoder()
+
+
+
+    @Bean
+    fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager =
+        authenticationConfiguration.authenticationManager
+
+
+    @Bean
+    fun authenticationProvider(): AuthenticationProvider{
+        val daoAuthenticationProvider = DaoAuthenticationProvider()
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService)
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder())
+        return daoAuthenticationProvider
     }
 
 }
