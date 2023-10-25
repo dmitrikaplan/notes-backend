@@ -29,7 +29,7 @@ class EmailServiceImpl @Autowired constructor(
         val subject = KindsOfSubjects.SUBJECT_FOR_REGISTRATION.subject
         val endpoint = "activation"
         val context = Context()
-        context.setVariable("login", login)
+        context.setVariable("username", login)
         context.setVariable("activationLink", generateActivationLink(activationCode, host, endpoint))
         context.setVariable("subject", subject)
         sendEmail(emailTo, login, context, subject, templateLocation)
@@ -40,7 +40,7 @@ class EmailServiceImpl @Autowired constructor(
         val subject = KindsOfSubjects.SUBJECT_FOR_PASSWORD_RECOVERY.subject
         val endpoint = "recovery"
         val context = Context()
-        context.setVariable("login", login)
+        context.setVariable("username", login)
         context.setVariable("activationLink", generateActivationLink(activationCode, host, endpoint))
         context.setVariable("subject", subject)
         sendEmail(emailTo, login, context, subject, templateLocation)
