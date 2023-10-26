@@ -22,7 +22,7 @@ import ru.kaplaan.web.validation.OnCreate
 import ru.kaplaan.web.validation.OnRecovery
 
 @Validated
-@Controller
+@RestController
 @RequestMapping("/api/v1/auth/")
 @Tag(name = "Auth Controller", description = "Контроллер аутентификации")
 class AuthController(
@@ -161,5 +161,12 @@ class AuthController(
             ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
                 .body(messageResponse)
         }
+    }
+
+
+    @PostMapping("/refresh")
+    fun getNewRefreshToken(): JwtResponse{
+        // TODO: Добавить обновление refresh token
+        return JwtResponse("", "")
     }
 }
