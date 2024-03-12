@@ -1,6 +1,6 @@
 package ru.kaplaan.notes.domain.exception
 
-class NoteCannotBeAddedException: RuntimeException(){
+class NoteCannotBeAddedException: NoteException("Ошибка добавления заметки"){
     override val message: String
-        get() = "Ошибка добавления заметки"
+        get() = super.message
 }

@@ -1,6 +1,8 @@
 package ru.kaplaan.authserver.domain.exception
 
-class RoleNotFoundException : RuntimeException() {
+import ru.kaplaan.domain.domain.exception.UserException
+
+class RoleNotFoundException : UserException("Роль не найдена!") {
     override val message: String
-        get() = "Данная роль не найдена!"
+        get() = super.message
 }

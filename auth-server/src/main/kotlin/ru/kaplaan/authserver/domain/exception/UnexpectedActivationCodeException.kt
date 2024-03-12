@@ -1,6 +1,8 @@
 package ru.kaplaan.authserver.domain.exception
 
-class UnexpectedActivationCodeException: RuntimeException() {
+import ru.kaplaan.domain.domain.exception.UserException
+
+class UnexpectedActivationCodeException: UserException("Неожидаемый код активации") {
     override val message: String
-        get() = "Неожидаемый код активации"
+        get() = super.message
 }
