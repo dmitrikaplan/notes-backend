@@ -2,7 +2,6 @@ package ru.kaplaan.notes.domain.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -41,12 +40,6 @@ class SecurityConfig (
             }
 
             .authorizeHttpRequests{
-                it.requestMatchers(HttpMethod.GET, "/api/v1/auth/activation/{code}").permitAll()
-                it.requestMatchers(HttpMethod.GET, "/swagger-ui/*").permitAll()
-                it.requestMatchers(HttpMethod.GET, "/v3/api-docs/*").permitAll()
-                it.requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
-                it.requestMatchers(HttpMethod.POST, "/api/v1/auth/registration").permitAll()
-                it.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                 it.anyRequest().authenticated()
             }
             .authenticationProvider(authenticationProvider())
