@@ -6,7 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.kaplaan.authserver.domain.entity.RefreshToken
-import ru.kaplaan.authserver.domain.exception.NotFoundUserByActivationCode
+import ru.kaplaan.authserver.domain.exception.NotFoundUserByActivationCodeException
 import ru.kaplaan.authserver.domain.user.UserIdentification
 import ru.kaplaan.authserver.repository.RefreshTokenRepository
 import ru.kaplaan.authserver.service.AuthService
@@ -79,7 +79,7 @@ class AuthServiceImpl(
     }
 
     override fun activateAccount(code: String) {
-        val user = userRepository.getUserByActivationCode(code) ?: throw NotFoundUserByActivationCode()
+        val user = userRepository.getUserByActivationCode(code) ?: throw NotFoundUserByActivationCodeException()
         user.activationCode = null
         user.activated = true
         userRepository.save(user)
