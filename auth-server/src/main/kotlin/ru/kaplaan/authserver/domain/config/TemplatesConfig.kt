@@ -9,28 +9,26 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 @Configuration
 class TemplatesConfig : WebMvcConfigurer {
     @Bean
-    fun emailTemplateResolver(): ClassLoaderTemplateResolver {
-        val templateResolver = ClassLoaderTemplateResolver()
-        templateResolver.prefix = "/templates/email/"
-        templateResolver.suffix = ".html"
-        templateResolver.characterEncoding = "UTF-8"
-        return templateResolver
-    }
+    fun emailTemplateResolver(): ClassLoaderTemplateResolver =
+        ClassLoaderTemplateResolver().apply {
+            prefix = "/templates/email/"
+            suffix = ".html"
+            characterEncoding = "UTF-8"
+        }
 
     @Bean
-    fun templateResolver(): ClassLoaderTemplateResolver {
-        val templateResolver = ClassLoaderTemplateResolver()
-        templateResolver.prefix = "/templates/"
-        templateResolver.suffix = ".html"
-        templateResolver.characterEncoding = "UTF-8"
-        return templateResolver
-    }
+    fun defaultTemplateResolver(): ClassLoaderTemplateResolver =
+        ClassLoaderTemplateResolver().apply {
+            prefix = "/templates/"
+            suffix = ".html"
+            characterEncoding = "UTF-8"
+        }
+
 
     @Bean
-    fun templateEngine(): SpringTemplateEngine {
-        val templateEngine = SpringTemplateEngine()
-        templateEngine.addTemplateResolver(emailTemplateResolver())
-        templateEngine.addTemplateResolver(templateResolver())
-        return templateEngine
-    }
+    fun templateEngine(): SpringTemplateEngine =
+        SpringTemplateEngine().apply {
+            addTemplateResolver(emailTemplateResolver())
+            addTemplateResolver(defaultTemplateResolver())
+        }
 }

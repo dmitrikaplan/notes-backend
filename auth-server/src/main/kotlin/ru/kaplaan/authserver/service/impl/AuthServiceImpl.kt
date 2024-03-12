@@ -30,13 +30,15 @@ class AuthServiceImpl(
 ) : AuthService {
 
     override fun registerUser(user: User) {
+
         checkRegistration(user)
 
-        val hashedPassword: String = passwordEncoder.encode(user.password)
         val activationCode = UUID.randomUUID().toString().replace("-", "")
 
-        user.password = hashedPassword
-        user.activationCode = activationCode
+        user.apply {
+            this.password = passwordEncoder.encode(user.password)
+            this.activationCode = activationCode
+        }
 
         emailService.activateUserByEmail(user.email, user.username, activationCode)
 
@@ -58,13 +60,13 @@ class AuthServiceImpl(
 
     private fun authenticateByUsername(userIdentification: UserIdentification): User? {
         return try {
-            val authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
                     userIdentification.usernameOrEmail,
                     userIdentification.password
                 )
-            )
-            authentication.principal as User
+            ).principal as User
+
         } catch (e: BadCredentialsException) {
             null
         }
@@ -79,18 +81,24 @@ class AuthServiceImpl(
     }
 
     override fun activateAccount(code: String) {
-        val user = userRepository.getUserByActivationCode(code) ?: throw NotFoundUserByActivationCodeException()
-        user.activationCode = null
-        user.activated = true
-        userRepository.save(user)
+        userRepository.getUserByActivationCode(code)?.apply {
+
+            activationCode = null
+            activated = true
+            userRepository.save(this)
+
+        } ?: throw NotFoundUserByActivationCodeException()
+
     }
 
     // TODO: Полностью переделать восстановление пароля
     override fun passwordRecovery(userIdentification: UserIdentification) {
-        val user = getUserByUsernameOrEmail(userIdentification)
         val activationCode = UUID.randomUUID().toString().replace("-", "")
-        user.activationCode = activationCode
+        val user = getUserByUsernameOrEmail(userIdentification).apply {
+            this.activationCode = activationCode
+        }
         emailService.recoveryPasswordByEmail(user.email, user.username, activationCode)
+
         userRepository.save(user)
     }
 
@@ -104,13 +112,13 @@ class AuthServiceImpl(
                 throw UserNotFoundException("Пользователь с таким логином или паролем не найден")
     }
 
-    private fun saveRefreshToken(login: String, token: String) {
-        val refreshToken = RefreshToken(login, token)
-        refreshTokenRepository.save(refreshToken)
-    }
+    private fun saveRefreshToken(login: String, token: String) =
+        RefreshToken(login, token).let{ refreshToken ->
+            refreshTokenRepository.save(refreshToken)
+        }
 
-    private fun checkRegistration(user: User) {
-        if (userRepository.findByUsername(user.username) != null)
+    private fun checkRegistration(user: User) =
+        userRepository.findByUsername(user.username)?.let {
             throw UserAlreadyRegisteredException("Пользователь с таким логином или паролем уже существует")
-    }
+        }
 }

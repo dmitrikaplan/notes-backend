@@ -7,9 +7,9 @@ import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
 import org.thymeleaf.context.Context
 import org.thymeleaf.spring6.SpringTemplateEngine
-import ru.kaplaan.authserver.service.EmailService
 import ru.kaplaan.authserver.domain.email.KindsOfEmailMessages
 import ru.kaplaan.authserver.domain.email.KindsOfSubjects
+import ru.kaplaan.authserver.service.EmailService
 import java.nio.charset.StandardCharsets
 
 @Service
@@ -28,36 +28,43 @@ class EmailServiceImpl @Autowired constructor(
         val templateLocation = KindsOfEmailMessages.REGISTRATION_EMAIL.pathOfTemplate
         val subject = KindsOfSubjects.SUBJECT_FOR_REGISTRATION.subject
         val endpoint = "activation"
-        val context = Context()
-        context.setVariable("username", login)
-        context.setVariable("activationLink", generateActivationLink(activationCode, host, endpoint))
-        context.setVariable("subject", subject)
+        val context = Context().apply{
+            setVariable("username", login)
+            setVariable("activationLink", generateActivationLink(activationCode, host, endpoint))
+            setVariable("subject", subject)
+        }
+
         sendEmail(emailTo, login, context, subject, templateLocation)
+
     }
 
     override fun recoveryPasswordByEmail(emailTo: String, login: String, activationCode: String) {
         val templateLocation = KindsOfEmailMessages.RECOVERY_EMAIL.pathOfTemplate
         val subject = KindsOfSubjects.SUBJECT_FOR_PASSWORD_RECOVERY.subject
         val endpoint = "recovery"
-        val context = Context()
-        context.setVariable("username", login)
-        context.setVariable("activationLink", generateActivationLink(activationCode, host, endpoint))
-        context.setVariable("subject", subject)
+        val context = Context().apply {
+            setVariable("username", login)
+            setVariable("activationLink", generateActivationLink(activationCode, host, endpoint))
+            setVariable("subject", subject)
+        }
         sendEmail(emailTo, login, context, subject, templateLocation)
     }
 
     private fun sendEmail(emailTo: String, login: String, context: Context, subject: String, templateLocation: String) {
         val mailMessage = mailSender.createMimeMessage()
-        val mimeMessageHelper = MimeMessageHelper(
+        val emailContent = springTemplateEngine.process(templateLocation, context)
+
+        MimeMessageHelper(
             mailMessage,
             MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
             StandardCharsets.UTF_8.name()
-        )
-        val emailContent = springTemplateEngine.process(templateLocation, context)
-        mimeMessageHelper.setFrom(mail)
-        mimeMessageHelper.setSubject(subject)
-        mimeMessageHelper.setTo(emailTo)
-        mimeMessageHelper.setText(emailContent, true)
+        ).apply {
+            setFrom(mail)
+            setSubject(subject)
+            setTo(emailTo)
+            setText(emailContent, true)
+        }
+
         mailSender.send(mailMessage)
     }
 
@@ -65,18 +72,4 @@ class EmailServiceImpl @Autowired constructor(
         return String.format("%s/%s/%s", host, endpoint, activationCode)
     }
 
-
-    fun getHost() =
-        host
-
-    fun setHost(host: String){
-        this.host = host
-    }
-
-    fun getMail() =
-        mail
-
-    fun setMail(mail: String){
-        this.mail = mail
-    }
 }

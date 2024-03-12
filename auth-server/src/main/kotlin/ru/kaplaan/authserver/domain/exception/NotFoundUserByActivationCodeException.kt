@@ -8,5 +8,4 @@ class NotFoundUserByActivationCodeException:
     override val message: String
         get() = super.message
 
-
 }

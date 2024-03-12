@@ -37,14 +37,17 @@ class JwtAuthenticationFilter(
 
         if(SecurityContextHolder.getContext().authentication == null){
             try{
-                val userDetails = userDetailsService.loadUserByUsername(username)
-                val authenticationToken = UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.authorities
-                )
+                userDetailsService
+                    .loadUserByUsername(username)
+                    .let { userDetails ->
 
-                SecurityContextHolder.getContext().authentication = authenticationToken
+                        SecurityContextHolder.getContext().authentication =
+                            UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.authorities
+                            )
+                    }
 
             } catch (e: UserNotFoundException){
                 log.info("Пользователь не найден")

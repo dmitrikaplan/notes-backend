@@ -80,6 +80,6 @@ class NoteController(
         description = "Получение заметок пользователя с сервера"
     )
     @SecurityRequirement(name = "JWT")
-    fun getNotes(): List<NoteDto> =
-        noteService.allNotes().toDto()
+    fun getNotes(principal: Principal): List<NoteDto> =
+        noteService.getAllNotes(principal.name).toDto()
 }

@@ -10,8 +10,10 @@ import ru.kaplaan.notes.domain.entity.Note
 @Service
 interface NoteService {
     fun addNote(note: Note): Note
+
     fun updateNote(note: Note): Note
+
     fun deleteNote(id: Long)
 
-    fun allNotes(): List<Note>
+    fun getAllNotes(owner: String): List<Note>
 }

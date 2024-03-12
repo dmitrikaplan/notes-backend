@@ -28,18 +28,18 @@ class MailConfig {
     private lateinit var debug: String
 
     @Bean
-    fun getMailSender(): JavaMailSender {
-        val mailSender = JavaMailSenderImpl()
-        mailSender.host = host
-        mailSender.port = port
-        mailSender.username = username
-        mailSender.password = password
-        mailSender.protocol = protocol
-        val properties = mailSender.javaMailProperties
-        properties.setProperty("mail.transport.protocol", protocol)
-        properties.setProperty("mail.debug", debug)
+    fun getMailSender(): JavaMailSender =
+        JavaMailSenderImpl().apply {
+            host = this@MailConfig.host
+            port = this@MailConfig.port
+            username = this@MailConfig.username
+            password = this@MailConfig.password
+            protocol = this@MailConfig.protocol
+            javaMailProperties.apply {
+                setProperty("mail.transport.protocol", protocol)
+                setProperty("mail.debug", debug)
+            }
+        }
 
-        return mailSender
-    }
 
 }

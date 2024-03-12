@@ -12,10 +12,9 @@ class ApplicationConfig(
 ) {
 
     @Bean
-    fun userDetailsService(): UserDetailsService {
-        return UserDetailsService {
+    fun userDetailsService(): UserDetailsService =
+        UserDetailsService {
             userRepository.findByUsername(it)
                 ?: throw UsernameNotFoundException(null)
         }
-    }
 }

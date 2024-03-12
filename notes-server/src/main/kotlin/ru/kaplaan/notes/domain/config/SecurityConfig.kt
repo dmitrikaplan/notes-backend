@@ -24,7 +24,7 @@ class SecurityConfig (
 ) {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
         http
             .httpBasic {
                 it.disable()
@@ -44,8 +44,7 @@ class SecurityConfig (
             }
             .authenticationProvider(authenticationProvider())
             .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-        return http.build()
-    }
+            .build()
 
     @Bean
     fun passwordEncoder(): PasswordEncoder =
@@ -59,11 +58,11 @@ class SecurityConfig (
 
 
     @Bean
-    fun authenticationProvider(): AuthenticationProvider{
-        val daoAuthenticationProvider = DaoAuthenticationProvider()
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService)
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder())
-        return daoAuthenticationProvider
-    }
+    fun authenticationProvider(): AuthenticationProvider =
+        DaoAuthenticationProvider().apply {
+            setUserDetailsService(userDetailsService)
+            setPasswordEncoder(passwordEncoder())
+        }
+
 
 }

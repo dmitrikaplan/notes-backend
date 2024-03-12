@@ -19,18 +19,13 @@ class NoteServiceImpl(
             ?: throw NoteCannotBeAddedException()
     }
 
-    override fun updateNote(note: Note): Note {
-        return noteRepository.updateNote(note.text, note.id)
+    override fun updateNote(note: Note): Note =
+        noteRepository.updateNote(note.text, note.id)
             ?: throw NoteCannotUpdatedException()
-    }
 
-    override fun deleteNote(id: Long) {
+    override fun deleteNote(id: Long) =
         noteRepository.deleteById(id)
-    }
 
-    override fun allNotes(): List<Note> {
-        // TODO: добавить owner 
-        val owner = ""
-        return noteRepository.getNotesByOwner(owner)
-    }
+    override fun getAllNotes(owner: String): List<Note> =
+        noteRepository.getNotesByOwner(owner)
 }

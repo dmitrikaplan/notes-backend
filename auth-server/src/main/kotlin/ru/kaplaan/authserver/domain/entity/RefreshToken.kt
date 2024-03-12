@@ -11,8 +11,4 @@ data class RefreshToken(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     var id: Long? = null
-
-    constructor(id: Long, refreshToken: String, login: String): this(refreshToken, login){
-        this.id = id
-    }
 }

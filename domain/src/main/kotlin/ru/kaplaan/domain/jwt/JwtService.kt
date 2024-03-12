@@ -24,19 +24,19 @@ class JwtService {
     private val log = LoggerFactory.getLogger(javaClass)
 
 
-    private fun getAccessSignKey(): Key {
-        val bytes = Decoders.BASE64.decode(jwtAccessSecret)
-        return Keys.hmacShaKeyFor(bytes)
-    }
+    private fun getAccessSignKey(): Key =
+        Decoders.BASE64.decode(jwtAccessSecret).let { bytes ->
+            Keys.hmacShaKeyFor(bytes)
+        }
 
-    private fun getRefreshSignKey(): Key{
-        val bytes = Decoders.BASE64.decode(jwtRefreshSecret)
-        return Keys.hmacShaKeyFor(bytes)
-    }
+    private fun getRefreshSignKey(): Key =
+        Decoders.BASE64.decode(jwtRefreshSecret).let { bytes ->
+            Keys.hmacShaKeyFor(bytes)
+        }
 
 
-    fun generateJwtAccessToken(user: User): String {
-        return Jwts
+    fun generateJwtAccessToken(user: User): String =
+        Jwts
             .builder()
             .setSubject(user.username)
             .setClaims(
@@ -48,10 +48,9 @@ class JwtService {
             .setExpiration(Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30)))
             .signWith(getAccessSignKey(), SignatureAlgorithm.HS256)
             .compact()
-    }
 
-    fun generateJwtRefreshToken(user: User): String {
-        return Jwts
+    fun generateJwtRefreshToken(user: User): String =
+            Jwts
             .builder()
             .setSubject(user.username)
             .setClaims(
@@ -65,15 +64,14 @@ class JwtService {
             .setExpiration(Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15)))
             .signWith(getRefreshSignKey(), SignatureAlgorithm.HS512)
             .compact()
-    }
 
-    fun isValidAccessToken(accessToken: String): Boolean {
-        return validateToken(accessToken, getAccessSignKey()) && isNotExpired(accessToken, getAccessSignKey())
-    }
 
-    fun isValidRefreshToken(refreshToken: String): Boolean {
-        return validateToken(refreshToken, getRefreshSignKey()) && isNotExpired(refreshToken, getRefreshSignKey())
-    }
+    fun isValidAccessToken(accessToken: String): Boolean =
+        validateToken(accessToken, getAccessSignKey()) && isNotExpired(accessToken, getAccessSignKey())
+
+
+    fun isValidRefreshToken(refreshToken: String): Boolean =
+        validateToken(refreshToken, getRefreshSignKey()) && isNotExpired(refreshToken, getRefreshSignKey())
 
     private fun validateToken(token: String, key: Key): Boolean {
         try {
@@ -83,56 +81,46 @@ class JwtService {
                 .build()
                 .parseClaimsJws(token)
             return true
+
         } catch (e: ExpiredJwtException) {
-            println("Error")
             log.error("Token expired", e)
         } catch (e: UnsupportedJwtException) {
             log.error("Unsupported jwt", e)
-            println("Error")
         } catch (e: MalformedJwtException) {
             log.error("Malformed jwt", e)
-            println("Error")
         } catch (e: SignatureException) {
             log.error("Invalid signature", e)
-            println("Error")
         } catch (e: Exception) {
             log.error("invalid token", e)
-            println("Error")
         }
+
         return false
     }
 
-    private fun isNotExpired(jwtToken: String, key: Key): Boolean {
-        return extractExpiration(jwtToken, key).before(Date(System.currentTimeMillis()))
-    }
+    private fun isNotExpired(jwtToken: String, key: Key): Boolean =
+        extractExpiration(jwtToken, key).before(Date(System.currentTimeMillis()))
 
 
-    fun extractUsernameFromAccessToken(jwtToken: String): String{
-        return extractClaim(jwtToken, getAccessSignKey()){
+    fun extractUsernameFromAccessToken(jwtToken: String): String =
+        extractClaim(jwtToken, getAccessSignKey()){
                 it["username"] as String
-        }
     }
 
 
-    private fun extractExpiration(jwtToken: String, key: Key): Date{
-        return extractClaim(jwtToken, key, Claims::getExpiration)
-    }
+    private fun extractExpiration(jwtToken: String, key: Key): Date =
+        extractClaim(jwtToken, key, Claims::getExpiration)
 
 
-    private fun <T> extractClaim(jwtToken: String, key: Key, resolver: (Claims) -> T): T {
-        val claims = extractAllClaims(jwtToken, key)
-        return resolver(claims)
-    }
+    private fun <T> extractClaim(jwtToken: String, key: Key, resolver: (Claims) -> T): T =
+        resolver(extractAllClaims(jwtToken, key))
 
 
-
-    private fun extractAllClaims(jwtToken: String, key: Key): Claims{
-        return Jwts
+    private fun extractAllClaims(jwtToken: String, key: Key): Claims =
+            Jwts
             .parserBuilder()
             .setSigningKey(key)
             .build()
             .parseClaimsJws(jwtToken)
             .body
-    }
 
 }
