@@ -1,4 +1,4 @@
-package ru.kaplaan.authserver.domain.config
+package ru.kaplaan.domain.domain.web.advice
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
 @ControllerAdvice
-class AuthControllerAdvice {
+class ValidationAdvice {
 
     private val log = LoggerFactory.getLogger(javaClass)
-
 
     @ExceptionHandler(BindException::class)
     fun bindExceptionHandler(bindException: BindException): ResponseEntity<ProblemDetail>{
