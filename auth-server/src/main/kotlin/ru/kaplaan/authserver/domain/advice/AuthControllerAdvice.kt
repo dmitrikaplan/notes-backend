@@ -37,6 +37,5 @@ class AuthControllerAdvice {
                 log.debug("Ошибка отправки сообщения на почту")
                 return ResponseEntity.badRequest().body(this)
             }
-
     }
 }
