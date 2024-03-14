@@ -8,9 +8,7 @@ import ru.kaplaan.domain.domain.user.User
 @Service
 interface AuthService {
 
-    fun registerUser(user: User)
-
-    fun registerAdmin(user: User)
+    fun register(user: User)
 
     fun authenticate(userIdentification: UserIdentification): JwtResponse
 
@@ -18,6 +16,5 @@ interface AuthService {
 
     fun passwordRecovery(userIdentification: UserIdentification)
 
-    fun getNewRefreshToken(jwtToken: String): JwtResponse
-
+    fun refresh(token: String, username: String): JwtResponse
 }

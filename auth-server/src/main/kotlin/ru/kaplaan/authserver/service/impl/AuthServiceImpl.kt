@@ -1,12 +1,16 @@
 package ru.kaplaan.authserver.service.impl
 
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.kaplaan.authserver.domain.entity.RefreshToken
-import ru.kaplaan.authserver.domain.exception.NotFoundUserByActivationCodeException
+import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenExpiredException
+import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenNotFoundException
+import ru.kaplaan.authserver.domain.exception.user.NotFoundUserByActivationCodeException
 import ru.kaplaan.authserver.domain.user.UserIdentification
 import ru.kaplaan.authserver.repository.RefreshTokenRepository
 import ru.kaplaan.authserver.service.AuthService
@@ -26,10 +30,11 @@ class AuthServiceImpl(
     private val emailService: EmailService,
     private val jwtService: JwtService,
     private val authenticationManager: AuthenticationManager,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val userDetailsService: UserDetailsService
 ) : AuthService {
 
-    override fun registerUser(user: User) {
+    override fun register(user: User) {
 
         checkRegistration(user)
 
@@ -45,15 +50,11 @@ class AuthServiceImpl(
         userRepository.save(user)
     }
 
-    override fun registerAdmin(user: User) {
-        TODO("Not yet implemented")
-    }
-
     override fun authenticate(userIdentification: UserIdentification): JwtResponse {
         val user = getUserByUsernameOrEmail(userIdentification)
 
         val accessToken = jwtService.generateJwtAccessToken(user)
-        val refreshToken = jwtService.generateJwtRefreshToken(user)
+        val refreshToken = getRefreshToken(user)
 
         return JwtResponse(accessToken, refreshToken)
     }
@@ -61,13 +62,13 @@ class AuthServiceImpl(
     private fun authenticateByUsername(userIdentification: UserIdentification): User? {
         return try {
             authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken.unauthenticated(
                     userIdentification.usernameOrEmail,
                     userIdentification.password
                 )
             ).principal as User
 
-        } catch (e: BadCredentialsException) {
+        } catch (e: AuthenticationException) {
             null
         }
     }
@@ -102,8 +103,21 @@ class AuthServiceImpl(
         userRepository.save(user)
     }
 
-    override fun getNewRefreshToken(jwtToken: String): JwtResponse {
-        TODO()
+    override fun refresh(token: String, username: String): JwtResponse {
+
+        if(!jwtService.isValidRefreshToken(token)){
+            refreshTokenRepository.deleteByToken(token)
+            throw RefreshTokenExpiredException()
+        }
+
+        if(!refreshTokenRepository.existsByToken(token))
+            throw RefreshTokenNotFoundException()
+
+        val userDetails = userDetailsService.loadUserByUsername(username)
+
+        val accessToken = jwtService.generateJwtAccessToken(userDetails as User)
+
+        return JwtResponse(accessToken, token)
     }
 
     private fun getUserByUsernameOrEmail(userIdentification: UserIdentification): User {
@@ -112,10 +126,33 @@ class AuthServiceImpl(
                 throw UserNotFoundException("Пользователь с таким логином или паролем не найден")
     }
 
-    private fun saveRefreshToken(login: String, token: String) =
-        RefreshToken(login, token).let{ refreshToken ->
-            refreshTokenRepository.save(refreshToken)
+    private fun getRefreshToken(user: User): String{
+
+        val refreshToken = refreshTokenRepository.findRefreshTokenByUser(user)
+            ?: return saveRefreshToken(user)
+
+        if(!jwtService.isValidRefreshToken(refreshToken.token))
+            return updateRefreshToken(refreshToken, user)
+
+        return refreshToken.token
+    }
+
+    private fun updateRefreshToken(refreshToken: RefreshToken, userDetails: UserDetails): String {
+        val token = jwtService.generateJwtRefreshToken(userDetails as User)
+        refreshToken.token = token
+        refreshTokenRepository.save(refreshToken)
+        return token
+    }
+
+    private fun saveRefreshToken(user: User): String {
+        val token =  jwtService.generateJwtRefreshToken(user)
+        val refreshToken = RefreshToken().apply {
+            this.token = token
+            this.user = user
         }
+        refreshTokenRepository.save(refreshToken)
+        return token
+    }
 
     private fun checkRegistration(user: User) =
         userRepository.findByUsername(user.username)?.let {

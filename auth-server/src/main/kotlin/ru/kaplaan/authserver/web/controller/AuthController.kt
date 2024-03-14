@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import ru.kaplaan.authserver.service.AuthService
+import ru.kaplaan.authserver.web.dto.refresh_token.RefreshTokenDto
 import ru.kaplaan.authserver.web.dto.response.jwt.JwtResponse
 import ru.kaplaan.authserver.web.dto.user.UserDto
 import ru.kaplaan.authserver.web.dto.user.UserIdentificationDto
@@ -18,6 +19,7 @@ import ru.kaplaan.domain.domain.user.Role
 import ru.kaplaan.domain.domain.web.response.MessageResponse
 import ru.kaplaan.domain.domain.web.validation.OnCreate
 import ru.kaplaan.domain.domain.web.validation.OnRecovery
+import java.security.Principal
 
 
 @RestController
@@ -36,7 +38,7 @@ class AuthController(
         @Parameter(description = "логин, почта и пароль пользователя в формате json", required = true)
         userDto: UserDto,
     ): ResponseEntity<MessageResponse> {
-        authService.registerUser(userDto.toEntity(Role.ROLE_USER))
+        authService.register(userDto.toEntity(Role.ROLE_USER))
         log.info("Код подтверждения для пользователя ${userDto.username.uppercase()} отправлен на почту")
 
         return MessageResponse("Код подтверждения отправлен вам на почту").let {
@@ -88,9 +90,14 @@ class AuthController(
 
     }
 
+    @Operation(
+        summary = "Обновление jwt access токена"
+    )
     @PostMapping("/refresh")
-    fun getNewRefreshToken(): JwtResponse {
-        // TODO: Добавить обновление refresh token
-        return JwtResponse("", "")
-    }
+    fun getNewRefreshToken(
+        principal: Principal,
+        @Parameter(description = "Refresh token в формате json", required = true)
+        @RequestBody refreshTokenDto: RefreshTokenDto
+    ): JwtResponse =
+         authService.refresh(refreshTokenDto.refreshToken, principal.name)
 }

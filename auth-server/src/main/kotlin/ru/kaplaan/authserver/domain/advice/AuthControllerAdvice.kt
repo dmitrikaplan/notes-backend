@@ -7,6 +7,7 @@ import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenException
 import ru.kaplaan.domain.domain.exception.UserException
 
 
@@ -24,6 +25,18 @@ class AuthControllerAdvice {
                 setProperty("errors", userException.message)
                 log.debug(userException.message)
                 return ResponseEntity.badRequest().body(this)
+            }
+    }
+
+
+    @ExceptionHandler(RefreshTokenException::class)
+    fun refreshTokenExceptionHandler(refreshTokenException: RefreshTokenException): ResponseEntity<ProblemDetail> {
+        ProblemDetail
+            .forStatusAndDetail(HttpStatus.BAD_REQUEST, refreshTokenException.message)
+            .apply {
+                setProperty("errors", refreshTokenException.message)
+                log.debug(refreshTokenException.message)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(this)
             }
     }
 

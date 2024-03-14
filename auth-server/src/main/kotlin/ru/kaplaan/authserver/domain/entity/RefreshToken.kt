@@ -1,14 +1,19 @@
 package ru.kaplaan.authserver.domain.entity
 
 import jakarta.persistence.*
+import ru.kaplaan.domain.domain.user.User
 
 @Entity
-data class RefreshToken(
-    var refreshToken: String,
-    var login: String
-){
+class RefreshToken {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    var id: Long? = null
+    var refreshTokenId: Int? = null
+
+    @Column(length = 1024)
+    lateinit var token: String
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
+    lateinit var user: User
 }
