@@ -13,18 +13,19 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import ru.kaplaan.domain.domain.config.JwtConfigurer
 import ru.kaplaan.domain.jwt.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig (
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val userDetailsService: UserDetailsService
+    private val authenticationConverter: AuthenticationConverter
 ) {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain =
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .httpBasic {
                 it.disable()
@@ -32,37 +33,21 @@ class SecurityConfig (
             .csrf {
                 it.disable()
             }
-            .cors{
+            .cors {
                 it.disable()
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-
-            .authorizeHttpRequests{
+            .authorizeHttpRequests {
                 it.anyRequest().authenticated()
             }
-            .authenticationProvider(authenticationProvider())
-            .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-            .build()
+            .also {
+                it.setSharedObject(AuthenticationConverter::class.java, authenticationConverter)
+            }
+            .apply(JwtConfigurer())
 
-    @Bean
-    fun passwordEncoder(): PasswordEncoder =
-        BCryptPasswordEncoder()
-
-
-
-    @Bean
-    fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager =
-        authenticationConfiguration.authenticationManager
-
-
-    @Bean
-    fun authenticationProvider(): AuthenticationProvider =
-        DaoAuthenticationProvider().apply {
-            setUserDetailsService(userDetailsService)
-            setPasswordEncoder(passwordEncoder())
-        }
-
+        return http.build()
+    }
 
 }

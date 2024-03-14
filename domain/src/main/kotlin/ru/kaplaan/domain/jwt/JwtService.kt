@@ -41,7 +41,8 @@ class JwtService {
             .setSubject(user.username)
             .setClaims(
                 mapOf(
-                    "username" to user.username
+                    "username" to user.username,
+                    "password" to user.password
                 )
             )
             .setIssuedAt(Date(System.currentTimeMillis()))
@@ -105,6 +106,11 @@ class JwtService {
         extractClaim(jwtToken, getAccessSignKey()){
                 it["username"] as String
     }
+
+    fun extractPasswordFromAccessToken(jwtToken: String): String =
+        extractClaim(jwtToken, getAccessSignKey()) {
+            it["password"] as String
+        }
 
 
     private fun extractExpiration(jwtToken: String, key: Key): Date =

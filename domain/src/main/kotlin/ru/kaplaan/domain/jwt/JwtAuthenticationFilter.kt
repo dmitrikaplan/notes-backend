@@ -4,20 +4,29 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.stereotype.Component
+import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.authentication.AuthenticationConverter
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
 import org.springframework.web.filter.OncePerRequestFilter
-import ru.kaplaan.domain.domain.exception.UserNotFoundException
 
-@Component
+
 class JwtAuthenticationFilter(
-    private val jwtService: JwtService,
-    private val userDetailsService: UserDetailsService
+    private val jwtAuthenticationConverter: AuthenticationConverter,
+    private val authenticationManager: AuthenticationManager,
+    private val authenticationEntryPoint: AuthenticationEntryPoint
 ) : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(javaClass)
+
+    private val securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy()
+    private val securityContextRepository = RequestAttributeSecurityContextRepository()
+
+
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -25,33 +34,26 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
 
-        val header = request.getHeader("Authorization")
-
-        if(header == null || !header.startsWith("Bearer ")){
+        val authenticationRequest = jwtAuthenticationConverter.convert(request)
+        ?: run {
             filterChain.doFilter(request, response)
-            return
+            return;
         }
 
-        val jwtToken = header.substring(7)
-        val username = jwtService.extractUsernameFromAccessToken(jwtToken)
-
-        if(SecurityContextHolder.getContext().authentication == null){
-            try{
-                userDetailsService
-                    .loadUserByUsername(username)
-                    .let { userDetails ->
-
-                        SecurityContextHolder.getContext().authentication =
-                            UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.authorities
-                            )
-                    }
-
-            } catch (e: UserNotFoundException){
-                log.info("Пользователь не найден")
+        try{
+            val authentication = authenticationManager.authenticate(authenticationRequest)
+            val securityContext = securityContextHolderStrategy.createEmptyContext().apply {
+                this.authentication = authentication
             }
+
+            securityContextHolderStrategy.context = securityContext
+            securityContextRepository.saveContext(securityContext, request, response)
+
+        } catch (e: AuthenticationException){
+            securityContextHolderStrategy.clearContext()
+            response.sendError(HttpStatus.UNAUTHORIZED.value())
+            authenticationEntryPoint.commence(request, response, e)
+            return
         }
 
         filterChain.doFilter(request, response)
