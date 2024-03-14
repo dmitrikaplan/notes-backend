@@ -95,9 +95,8 @@ class AuthController(
     )
     @PostMapping("/refresh")
     fun getNewRefreshToken(
-        principal: Principal,
         @Parameter(description = "Refresh token в формате json", required = true)
         @RequestBody refreshTokenDto: RefreshTokenDto
     ): JwtResponse =
-         authService.refresh(refreshTokenDto.refreshToken, principal.name)
+         authService.refresh(refreshTokenDto.refreshToken)
 }

@@ -37,6 +37,7 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/v1/auth/registration/user").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/api/v1/auth/refresh").permitAll()
                 it.anyRequest().authenticated()
             }
             .also {
