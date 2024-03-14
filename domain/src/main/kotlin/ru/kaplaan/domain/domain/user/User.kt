@@ -5,7 +5,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
-@Table(name = "user_table")
+@Table(name = "users")
 class User(): UserDetails{
 
     @Id
@@ -25,6 +25,7 @@ class User(): UserDetails{
 
     var activationCode: String? = null
 
+    @Enumerated(value = EnumType.STRING)
     lateinit var role: Role
 
     constructor(
