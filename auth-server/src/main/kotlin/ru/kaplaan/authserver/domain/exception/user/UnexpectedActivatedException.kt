@@ -1,4 +1,4 @@
-package ru.kaplaan.authserver.domain.exception
+package ru.kaplaan.authserver.domain.exception.user
 
 import ru.kaplaan.domain.domain.exception.UserException
 

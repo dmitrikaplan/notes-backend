@@ -1,6 +1,6 @@
 package ru.kaplaan.authserver.web.mapper
 
-import ru.kaplaan.authserver.domain.exception.RoleNotFoundException
+import ru.kaplaan.authserver.domain.exception.user.RoleNotFoundException
 import ru.kaplaan.authserver.domain.user.UserIdentification
 import ru.kaplaan.authserver.web.dto.user.UserDto
 import ru.kaplaan.authserver.web.dto.user.UserIdentificationDto
