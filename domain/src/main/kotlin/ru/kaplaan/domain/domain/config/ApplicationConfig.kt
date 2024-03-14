@@ -42,6 +42,9 @@ class ApplicationConfig(
 
                 val jwtToken = header.substring(7)
 
+                if(!jwtService.isValidAccessToken(jwtToken))
+                    return@AuthenticationConverter null
+
                 val username = jwtService.extractUsernameFromAccessToken(jwtToken)
                 val password = jwtService.extractPasswordFromAccessToken(jwtToken)
 
