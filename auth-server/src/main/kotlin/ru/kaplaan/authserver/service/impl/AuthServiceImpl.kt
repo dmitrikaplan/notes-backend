@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import ru.kaplaan.authserver.domain.entity.RefreshToken
 import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenExpiredException
 import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenNotFoundException
@@ -77,7 +78,7 @@ class AuthServiceImpl(
         val user = userRepository.findByEmail(userIdentification.usernameOrEmail)
 
         return if (user == null ||
-            passwordEncoder.encode(userIdentification.password) != user.password) null
+            !passwordEncoder.matches(userIdentification.password, user.password)) null
         else user
     }
 
@@ -103,19 +104,17 @@ class AuthServiceImpl(
         userRepository.save(user)
     }
 
-    override fun refresh(token: String, username: String): JwtResponse {
+    @Transactional
+    override fun refresh(token: String): JwtResponse {
 
         if(!jwtService.isValidRefreshToken(token)){
             refreshTokenRepository.deleteByToken(token)
             throw RefreshTokenExpiredException()
         }
 
-        if(!refreshTokenRepository.existsByToken(token))
-            throw RefreshTokenNotFoundException()
-
-        val userDetails = userDetailsService.loadUserByUsername(username)
-
-        val accessToken = jwtService.generateJwtAccessToken(userDetails as User)
+        val accessToken = refreshTokenRepository.findRefreshTokenByToken(token)?.user?.let { user ->
+            jwtService.generateJwtAccessToken(user)
+        } ?: throw RefreshTokenNotFoundException()
 
         return JwtResponse(accessToken, token)
     }

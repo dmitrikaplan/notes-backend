@@ -10,6 +10,8 @@ interface RefreshTokenRepository : CrudRepository<RefreshToken, Long>{
 
     fun findRefreshTokenByUser(user: User): RefreshToken?
 
+    fun findRefreshTokenByToken(token: String): RefreshToken?
+
     fun deleteByToken(token: String)
 
    fun existsByToken(token: String): Boolean

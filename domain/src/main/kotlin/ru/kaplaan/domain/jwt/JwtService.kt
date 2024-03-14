@@ -99,7 +99,7 @@ class JwtService {
     }
 
     private fun isNotExpired(jwtToken: String, key: Key): Boolean =
-        extractExpiration(jwtToken, key).before(Date(System.currentTimeMillis()))
+        extractExpiration(jwtToken, key).after(Date(System.currentTimeMillis()))
 
 
     fun extractUsernameFromAccessToken(jwtToken: String): String =
