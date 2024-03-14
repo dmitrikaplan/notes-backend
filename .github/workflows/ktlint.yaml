@@ -1,10 +1,6 @@
 name: ktlint
 
-on:
-  push:
-    paths:
-      - "**/*.kt"
-      - ".github/workflows/ktlint.yml"
+on: [push, workflow_dispatch]
 
 jobs:
   ktlint:
