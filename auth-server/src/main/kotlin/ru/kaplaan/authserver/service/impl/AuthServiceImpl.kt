@@ -2,6 +2,7 @@ package ru.kaplaan.authserver.service.impl
 
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -9,19 +10,19 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.kaplaan.authserver.domain.entity.RefreshToken
+import ru.kaplaan.authserver.domain.entity.User
 import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenExpiredException
 import ru.kaplaan.authserver.domain.exception.refresh_token.RefreshTokenNotFoundException
 import ru.kaplaan.authserver.domain.exception.user.NotFoundUserByActivationCodeException
+import ru.kaplaan.authserver.domain.exception.user.UserAlreadyRegisteredException
+import ru.kaplaan.authserver.domain.exception.user.UserNotFoundException
 import ru.kaplaan.authserver.domain.user.UserIdentification
 import ru.kaplaan.authserver.repository.RefreshTokenRepository
+import ru.kaplaan.authserver.repository.UserRepository
 import ru.kaplaan.authserver.service.AuthService
 import ru.kaplaan.authserver.service.EmailService
-import ru.kaplaan.authserver.web.dto.response.jwt.JwtResponse
-import ru.kaplaan.domain.domain.exception.UserAlreadyRegisteredException
-import ru.kaplaan.domain.domain.exception.UserNotFoundException
-import ru.kaplaan.domain.domain.user.User
-import ru.kaplaan.domain.jwt.JwtService
-import ru.kaplaan.domain.repository.UserRepository
+import ru.kaplaan.authserver.service.JwtService
+import ru.kaplaan.authserver.web.dto.response.JwtResponse
 import java.util.*
 
 @Service
@@ -31,8 +32,7 @@ class AuthServiceImpl(
     private val emailService: EmailService,
     private val jwtService: JwtService,
     private val authenticationManager: AuthenticationManager,
-    private val passwordEncoder: PasswordEncoder,
-    private val userDetailsService: UserDetailsService
+    private val passwordEncoder: PasswordEncoder
 ) : AuthService {
 
     override fun register(user: User) {
@@ -58,6 +58,10 @@ class AuthServiceImpl(
         val refreshToken = getRefreshToken(user)
 
         return JwtResponse(accessToken, refreshToken)
+    }
+
+    override fun authenticate(authentication: Authentication): Authentication {
+        return authenticationManager.authenticate(authentication)
     }
 
     private fun authenticateByUsername(userIdentification: UserIdentification): User? {
@@ -118,6 +122,10 @@ class AuthServiceImpl(
 
         return JwtResponse(accessToken, token)
     }
+
+    override fun getUserByUsername(username: String): User =
+        userRepository.findByUsername(username)
+            ?: throw UserNotFoundException(null)
 
     private fun getUserByUsernameOrEmail(userIdentification: UserIdentification): User {
         return authenticateByUsername(userIdentification) ?:

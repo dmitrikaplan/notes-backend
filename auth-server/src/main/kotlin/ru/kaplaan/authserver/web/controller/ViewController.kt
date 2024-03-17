@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth/view")
 @Tag(name = "View Controller", description = "Контроллер представления")
 class ViewController {
     @GetMapping("{activationCode}")

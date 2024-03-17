@@ -1,7 +1,6 @@
 package ru.kaplaan.authserver.domain.entity
 
 import jakarta.persistence.*
-import ru.kaplaan.domain.domain.user.User
 
 @Entity
 class RefreshToken {

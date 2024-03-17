@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Pattern
 import org.hibernate.validator.constraints.Length
-import ru.kaplaan.domain.domain.web.validation.OnCreate
+import ru.kaplaan.authserver.web.validation.OnCreate
 
 @Schema(description = "Сущность пользователя")
 class UserDto(

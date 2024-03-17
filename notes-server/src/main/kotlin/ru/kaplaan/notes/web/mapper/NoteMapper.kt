@@ -1,7 +1,7 @@
 package ru.kaplaan.notes.web.mapper
 
 import ru.kaplaan.notes.domain.entity.Note
-import ru.kaplaan.notes.web.dto.NoteDto
+import ru.kaplaan.notes.web.model.dto.NoteDto
 
 
 fun Note.toDto(): NoteDto {

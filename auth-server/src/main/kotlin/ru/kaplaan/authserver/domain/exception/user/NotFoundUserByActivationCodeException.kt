@@ -1,6 +1,5 @@
 package ru.kaplaan.authserver.domain.exception.user
 
-import ru.kaplaan.domain.domain.exception.UserException
 
 class NotFoundUserByActivationCodeException:
     UserException("Пользователь с таким кодом активации не найден!") {

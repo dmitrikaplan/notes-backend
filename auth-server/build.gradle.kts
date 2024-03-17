@@ -22,7 +22,6 @@ repositories {
 }
 
 dependencies {
-	implementation(project(":domain"))
 	//starters
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
@@ -44,8 +43,6 @@ dependencies {
 
 	//validation
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
-	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 
 	//serialization
 	implementation("org.jetbrains.kotlin:kotlin-reflect")

@@ -7,23 +7,29 @@ import org.hibernate.validator.constraints.Length
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import ru.kaplaan.authserver.domain.entity.Role
+import ru.kaplaan.authserver.domain.entity.User
 import ru.kaplaan.authserver.service.AuthService
+import ru.kaplaan.authserver.web.dto.authentication.AuthenticationDto
 import ru.kaplaan.authserver.web.dto.refresh_token.RefreshTokenDto
-import ru.kaplaan.authserver.web.dto.response.jwt.JwtResponse
+import ru.kaplaan.authserver.web.dto.response.JwtResponse
+import ru.kaplaan.authserver.web.dto.response.MessageResponse
+import ru.kaplaan.authserver.web.dto.user.UserDetailsDto
 import ru.kaplaan.authserver.web.dto.user.UserDto
 import ru.kaplaan.authserver.web.dto.user.UserIdentificationDto
+import ru.kaplaan.authserver.web.mapper.toDto
 import ru.kaplaan.authserver.web.mapper.toEntity
-import ru.kaplaan.domain.domain.user.Role
-import ru.kaplaan.domain.domain.web.response.MessageResponse
-import ru.kaplaan.domain.domain.web.validation.OnCreate
-import ru.kaplaan.domain.domain.web.validation.OnRecovery
-import java.security.Principal
+import ru.kaplaan.authserver.web.mapper.toUserDetailsDto
+import ru.kaplaan.authserver.web.mapper.toUsernamePasswordAuthentication
+import ru.kaplaan.authserver.web.validation.OnCreate
+import ru.kaplaan.authserver.web.validation.OnRecovery
 
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 @Tag(name = "Auth Controller", description = "Контроллер аутентификации")
 class AuthController(
     private val authService: AuthService,
@@ -89,6 +95,18 @@ class AuthController(
 
 
     }
+
+    @PostMapping("/authenticate")
+    fun authenticate(
+        @RequestBody authenticationDto: AuthenticationDto
+    ): ResponseEntity<AuthenticationDto>{
+        return authService.authenticate(authenticationDto.toUsernamePasswordAuthentication()).let {
+            println("opa")
+            ResponseEntity.ok().body(it.toDto())
+        }
+    }
+
+
 
     @Operation(
         summary = "Обновление jwt access токена"

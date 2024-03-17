@@ -3,8 +3,8 @@ package ru.kaplaan.authserver.web.dto.user
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import org.hibernate.validator.constraints.Length
-import ru.kaplaan.domain.domain.web.validation.OnCreate
-import ru.kaplaan.domain.domain.web.validation.OnRecovery
+import ru.kaplaan.authserver.web.validation.OnCreate
+import ru.kaplaan.authserver.web.validation.OnRecovery
 
 @Schema(description = "Сущность пользователя для идентификации")
 data class UserIdentificationDto(

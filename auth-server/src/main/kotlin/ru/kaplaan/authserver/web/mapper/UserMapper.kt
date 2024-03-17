@@ -1,11 +1,12 @@
 package ru.kaplaan.authserver.web.mapper
 
+import ru.kaplaan.authserver.domain.entity.Role
+import ru.kaplaan.authserver.domain.entity.User
 import ru.kaplaan.authserver.domain.exception.user.RoleNotFoundException
 import ru.kaplaan.authserver.domain.user.UserIdentification
+import ru.kaplaan.authserver.web.dto.user.UserDetailsDto
 import ru.kaplaan.authserver.web.dto.user.UserDto
 import ru.kaplaan.authserver.web.dto.user.UserIdentificationDto
-import ru.kaplaan.domain.domain.user.Role
-import ru.kaplaan.domain.domain.user.User
 
 
 fun User.toDto(): UserDto {
@@ -45,3 +46,15 @@ fun UserIdentificationDto.toEntity(): UserIdentification {
         password = password
     )
 }
+
+
+fun User.toUserDetailsDto(): UserDetailsDto =
+    UserDetailsDto(
+        id = this.id,
+        email = this.email,
+        username = this.username,
+        password = this.password,
+        activated = this.activated,
+        activationCode = this.activationCode,
+        role = this.role.name
+    )
