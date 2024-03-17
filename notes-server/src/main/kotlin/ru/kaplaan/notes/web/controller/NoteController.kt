@@ -27,6 +27,7 @@ class NoteController(
         @PathVariable username: String,
     ): ResponseEntity<NoteDto> {
         return noteService.addNote(noteDto.toEntity(username)).let { note ->
+            println(note.id)
             ResponseEntity.status(HttpStatus.OK).body(note.toDto())
         }
     }
