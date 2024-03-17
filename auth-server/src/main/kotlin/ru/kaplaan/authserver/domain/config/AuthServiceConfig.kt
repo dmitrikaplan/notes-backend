@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -19,8 +20,8 @@ class AuthServiceConfig(
 
 
     @Bean
-    fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager =
-        authenticationConfiguration.authenticationManager
+    fun authenticationManager(): AuthenticationManager =
+        ProviderManager(authenticationProvider(), jwtAuthenticationProvider(), emailAuthenticationProvider())
 
 
 
@@ -38,6 +39,16 @@ class AuthServiceConfig(
             setUserDetailsService(userDetailsService())
             setPasswordEncoder(passwordEncoder())
         }
+
+
+    @Bean
+    fun jwtAuthenticationProvider() =
+        JwtAuthenticationProvider(userDetailsService())
+
+
+    @Bean
+    fun emailAuthenticationProvider() =
+        EmailAuthenticationProvider(userRepository, passwordEncoder())
 
 
     @Bean

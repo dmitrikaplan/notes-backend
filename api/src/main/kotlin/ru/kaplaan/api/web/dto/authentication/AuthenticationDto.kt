@@ -1,6 +1,8 @@
 package ru.kaplaan.api.web.dto.authentication
 
+
 data class AuthenticationDto(
-    val username: String,
-    val password: String
+    val principal: Any,
+    val credentials: Any,
+    val authorities: List<String>,
 )

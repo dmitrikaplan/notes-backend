@@ -1,11 +1,15 @@
 package ru.kaplaan.authserver.service.impl
 
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationServiceException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,7 +36,7 @@ class AuthServiceImpl(
     private val emailService: EmailService,
     private val jwtService: JwtService,
     private val authenticationManager: AuthenticationManager,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ) : AuthService {
 
     override fun register(user: User) {
@@ -52,7 +56,10 @@ class AuthServiceImpl(
     }
 
     override fun authenticate(userIdentification: UserIdentification): JwtResponse {
-        val user = getUserByUsernameOrEmail(userIdentification)
+        val user = authenticationManager.authenticate(
+            UsernamePasswordAuthenticationToken
+                .unauthenticated(userIdentification.usernameOrEmail, userIdentification.password)
+        ).principal as User
 
         val accessToken = jwtService.generateJwtAccessToken(user)
         val refreshToken = getRefreshToken(user)
@@ -60,31 +67,9 @@ class AuthServiceImpl(
         return JwtResponse(accessToken, refreshToken)
     }
 
-    override fun authenticate(authentication: Authentication): Authentication {
-        return authenticationManager.authenticate(authentication)
-    }
+    override fun authenticate(authentication: Authentication): Authentication =
+        authenticationManager.authenticate(authentication)
 
-    private fun authenticateByUsername(userIdentification: UserIdentification): User? {
-        return try {
-            authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken.unauthenticated(
-                    userIdentification.usernameOrEmail,
-                    userIdentification.password
-                )
-            ).principal as User
-
-        } catch (e: AuthenticationException) {
-            null
-        }
-    }
-
-    private fun authenticateByEmail(userIdentification: UserIdentification): User? {
-        val user = userRepository.findByEmail(userIdentification.usernameOrEmail)
-
-        return if (user == null ||
-            !passwordEncoder.matches(userIdentification.password, user.password)) null
-        else user
-    }
 
     override fun activateAccount(code: String) {
         userRepository.getUserByActivationCode(code)?.apply {
@@ -99,13 +84,7 @@ class AuthServiceImpl(
 
     // TODO: Полностью переделать восстановление пароля
     override fun passwordRecovery(userIdentification: UserIdentification) {
-        val activationCode = UUID.randomUUID().toString().replace("-", "")
-        val user = getUserByUsernameOrEmail(userIdentification).apply {
-            this.activationCode = activationCode
-        }
-        emailService.recoveryPasswordByEmail(user.email, user.username, activationCode)
-
-        userRepository.save(user)
+        TODO()
     }
 
     @Transactional
@@ -127,11 +106,6 @@ class AuthServiceImpl(
         userRepository.findByUsername(username)
             ?: throw UserNotFoundException(null)
 
-    private fun getUserByUsernameOrEmail(userIdentification: UserIdentification): User {
-        return authenticateByUsername(userIdentification) ?:
-            authenticateByEmail(userIdentification) ?:
-                throw UserNotFoundException("Пользователь с таким логином или паролем не найден")
-    }
 
     private fun getRefreshToken(user: User): String{
 

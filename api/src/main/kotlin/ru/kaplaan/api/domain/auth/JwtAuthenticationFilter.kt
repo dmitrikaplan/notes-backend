@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
@@ -23,19 +22,15 @@ import ru.kaplaan.api.web.mapper.toUsernamePasswordAuthentication
 class JwtAuthenticationFilter(
     private val jwtAuthenticationConverter: AuthenticationConverter,
     private val authenticationEntryPoint: AuthenticationEntryPoint,
-    private val restClient: RestClient
+    private val restClient: RestClient,
+    private val url: String,
+
 ) : OncePerRequestFilter() {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy()
     private val securityContextRepository = RequestAttributeSecurityContextRepository()
-
-    @Value("\${auth-server.base-url}")
-    lateinit var baseUrl: String
-
-    @Value("\${auth-server.endpoint.authentication}")
-    lateinit var authenticationEndpoint: String
 
 
 
@@ -44,7 +39,6 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-
 
         val authenticationRequest = jwtAuthenticationConverter.convert(request)
         ?: run{
@@ -63,7 +57,6 @@ class JwtAuthenticationFilter(
 
         } catch (e: AuthenticationException){
             securityContextHolderStrategy.clearContext()
-            println(e.message)
             log.debug(e.message)
             authenticationEntryPoint.commence(request, response, e)
             return
@@ -78,7 +71,7 @@ class JwtAuthenticationFilter(
     private fun authenticationRequest(authenticationDto: AuthenticationDto): Authentication{
             restClient
             .post()
-            .uri("$baseUrl$authenticationEndpoint")
+            .uri(url)
             .body(authenticationDto)
             .retrieve()
             .toEntity(AuthenticationDto::class.java)
