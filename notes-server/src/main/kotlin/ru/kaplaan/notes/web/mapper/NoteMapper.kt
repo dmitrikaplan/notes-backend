@@ -8,7 +8,9 @@ fun Note.toDto(): NoteDto {
     return NoteDto(
         title = title,
         text = text
-    )
+    ).apply {
+        this.id = this@toDto.id
+    }
 }
 
 

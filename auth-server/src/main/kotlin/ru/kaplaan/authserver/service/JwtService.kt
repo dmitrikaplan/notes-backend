@@ -21,6 +21,12 @@ class JwtService {
     @Value("\${jwt.refresh.secret}")
     private lateinit var jwtRefreshSecret: String
 
+    @Value("\${jwt.refresh.expiration-minutes}")
+    private var refreshTokenExpirationMinutes: Long = 0
+
+    @Value("\${jwt.access.expiration-minutes}")
+    private var accessTokenExpirationMinutes: Long = 0
+
     private val log = LoggerFactory.getLogger(javaClass)
 
 
@@ -46,7 +52,7 @@ class JwtService {
                 )
             )
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(30)))
+            .setExpiration(Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(accessTokenExpirationMinutes)))
             .signWith(getAccessSignKey(), SignatureAlgorithm.HS256)
             .compact()
 
@@ -62,7 +68,7 @@ class JwtService {
                 )
             )
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15)))
+            .setExpiration(Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(refreshTokenExpirationMinutes)))
             .signWith(getRefreshSignKey(), SignatureAlgorithm.HS512)
             .compact()
 

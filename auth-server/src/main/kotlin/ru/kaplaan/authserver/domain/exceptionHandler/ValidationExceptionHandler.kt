@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 
 @ControllerAdvice
-class ValidatoinExceptionHandler {
+class ValidationExceptionHandler {
 
     private val log = LoggerFactory.getLogger(javaClass)
 

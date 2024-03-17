@@ -39,17 +39,15 @@ dependencies {
 	//database
 	implementation("org.postgresql:postgresql")
 
+	//kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 	//validation
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
-	//serialization
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
-	//swagger generator
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+
 }
 
 tasks.withType<KotlinCompile> {

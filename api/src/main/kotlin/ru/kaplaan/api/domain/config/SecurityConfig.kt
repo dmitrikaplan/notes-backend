@@ -1,5 +1,6 @@
 package ru.kaplaan.api.domain.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -19,6 +20,12 @@ class SecurityConfig (
     private val authenticationConverter: AuthenticationConverter,
     private val restClient: RestClient
 ) {
+
+    @Value("\${auth-server.base-url}")
+    lateinit var baseUrl: String
+
+    @Value("\${auth-server.endpoint.authentication}")
+    lateinit var authenticationEndpoint: String
 
     @Bean
     fun securityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
@@ -46,6 +53,7 @@ class SecurityConfig (
             .also {
                 it.setSharedObject(AuthenticationConverter::class.java, authenticationConverter)
                 it.setSharedObject(RestClient::class.java, restClient)
+                it.setSharedObject(String::class.java, "$baseUrl$authenticationEndpoint")
             }
             .apply(JwtConfigurer())
 

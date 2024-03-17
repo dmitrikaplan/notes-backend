@@ -27,18 +27,15 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-
 	//database
 	implementation("org.postgresql:postgresql")
 
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 	//validation
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
-	//serialization
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }
 
 tasks.withType<KotlinCompile> {

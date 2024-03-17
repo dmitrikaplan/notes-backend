@@ -15,8 +15,6 @@ import ru.kaplaan.api.domain.exception.EmptyBodyException
 @ControllerAdvice
 class ResponseExceptionHandler {
 
-
-
     @ExceptionHandler(HttpStatusCodeException::class)
     fun httpStatusCodeExceptionHandler(e: HttpStatusCodeException): ResponseEntity<ProblemDetail> {
         val message = e.message?.let {
@@ -31,7 +29,6 @@ class ResponseExceptionHandler {
             }
 
     }
-
 
     @ExceptionHandler(RestClientResponseException::class)
     fun httpStatusCodeExceptionHandler(e: RestClientResponseException): ResponseEntity<ProblemDetail> {
@@ -48,7 +45,6 @@ class ResponseExceptionHandler {
 
     }
 
-
     @ExceptionHandler(EmptyBodyException::class)
     fun emptyBodyExceptionHandler(e: EmptyBodyException): ResponseEntity<ProblemDetail> =
         ProblemDetail
@@ -60,7 +56,6 @@ class ResponseExceptionHandler {
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(it)
             }
 
-
     private fun <T> parserJson(message: String, clazz: Class<T>): String{
         return try{
             ObjectMapper().readValue(message, ProblemDetail::class.java).detail
@@ -70,8 +65,5 @@ class ResponseExceptionHandler {
         } catch (e: JsonMappingException){
             message
         }
-
-
     }
-
 }

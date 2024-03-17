@@ -6,13 +6,11 @@ import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
-import ru.kaplaan.api.domain.user.User
+import org.springframework.stereotype.Service
 import java.security.Key
 import java.util.*
-import java.util.concurrent.TimeUnit
 
-@Component
+@Service
 class JwtService {
 
     @Value("\${jwt.access.secret}")

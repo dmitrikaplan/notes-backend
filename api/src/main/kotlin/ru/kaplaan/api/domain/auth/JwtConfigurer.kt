@@ -2,11 +2,8 @@ package ru.kaplaan.api.domain.auth
 
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
@@ -35,13 +32,15 @@ class JwtConfigurer: AbstractHttpConfigurer<JwtConfigurer, HttpSecurity>() {
         builder?.let {
             val jwtAuthenticationConverter = it.getSharedObject(AuthenticationConverter::class.java)
             val restClient = it.getSharedObject(RestClient::class.java)
+            val url = it.getSharedObject(String::class.java)
             it.addFilterBefore(
                 JwtAuthenticationFilter(
                     jwtAuthenticationConverter = jwtAuthenticationConverter,
                     authenticationEntryPoint = authenticationEntryPoint,
-                    restClient = restClient
-                    ),
-                    UsernamePasswordAuthenticationFilter::class.java
+                    restClient = restClient,
+                    url
+                ),
+                UsernamePasswordAuthenticationFilter::class.java
             )
         } ?: throw RuntimeException()
 
