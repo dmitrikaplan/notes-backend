@@ -68,8 +68,7 @@ class EmailServiceImpl @Autowired constructor(
         mailSender.send(mailMessage)
     }
 
-    private fun generateActivationLink(activationCode: String, host: String?, endpoint: String): String {
-        return String.format("%s/%s/%s", host, endpoint, activationCode)
-    }
+    private fun generateActivationLink(activationCode: String, host: String?, endpoint: String): String =
+        "$host/$endpoint/$activationCode"
 
 }

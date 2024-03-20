@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
 import ru.kaplaan.api.service.AuthService
 import ru.kaplaan.api.web.dto.refresh_token.RefreshTokenDto
 import ru.kaplaan.api.web.dto.response.JwtResponse
@@ -31,11 +32,8 @@ class AuthController(
     fun registerUser(
         @RequestBody @Validated(OnCreate::class)
         @Parameter(description = "логин, почта и пароль пользователя в формате json", required = true)
-        userDto: UserDto,
-    ): ResponseEntity<MessageResponse> =
-        authService.registerUser(userDto).also {
-            log.info(it.body?.message)
-        }
+        userDto: Mono<UserDto>,
+    ): Mono<ResponseEntity<MessageResponse>> = authService.registerUser(userDto)
 
 
     @Operation(summary = "Авторизация пользователя")
@@ -43,9 +41,8 @@ class AuthController(
     fun login(
         @RequestBody @Validated(OnCreate::class)
         @Parameter(description = "логин или почта пользователя и пароль в формате json", required = true)
-        userIdentificationDto: UserIdentificationDto,
-    ): ResponseEntity<JwtResponse> =
-            authService.login(userIdentificationDto)
+        userIdentificationDto: Mono<UserIdentificationDto>,
+    ): Mono<ResponseEntity<JwtResponse>> = authService.login(userIdentificationDto)
 
     @GetMapping("/activation/{code}")
     @Operation(
@@ -55,8 +52,7 @@ class AuthController(
         @PathVariable @Length(min = 1)
         @Parameter(description = "код активации аккаунта", required = true)
         code: String,
-    ): ResponseEntity<String> =
-        authService.activateAccount(code)
+    ): Mono<ResponseEntity<String>> = authService.activateAccount(code)
 
     @PostMapping("/recovery")
     @Operation(
@@ -65,9 +61,8 @@ class AuthController(
     fun passwordRecovery(
         @RequestBody(required = true) @Validated(OnRecovery::class)
         @Parameter(description = "логин или почта пользователя и пароль в формате json", required = true)
-        userIdentificationDto: UserIdentificationDto,
-    ): ResponseEntity<MessageResponse> =
-        authService.passwordRecovery(userIdentificationDto)
+        userIdentificationDto: Mono<UserIdentificationDto>,
+    ): Mono<ResponseEntity<MessageResponse>> = authService.passwordRecovery(userIdentificationDto)
 
     @Operation(
         summary = "Обновление jwt access токена"
@@ -75,7 +70,6 @@ class AuthController(
     @PostMapping("/refresh")
     fun refresh(
         @Parameter(description = "Refresh token в формате json", required = true)
-        @RequestBody refreshTokenDto: RefreshTokenDto
-    ): JwtResponse =
-        authService.refresh(refreshTokenDto)
+        @RequestBody refreshTokenDto: Mono<RefreshTokenDto>
+    ): Mono<ResponseEntity<JwtResponse>> = authService.refresh(refreshTokenDto)
 }

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import ru.kaplaan.api.service.NoteService
 import ru.kaplaan.api.web.dto.note.NoteDto
 import ru.kaplaan.api.web.dto.response.MessageResponse
@@ -23,22 +25,22 @@ class NoteController(
         @RequestBody @Validated(OnCreate::class)
         noteDto: NoteDto,
         principal: Principal,
-    ): ResponseEntity<NoteDto> = noteService.addNote(noteDto, principal.name)
+    ): Mono<ResponseEntity<NoteDto>> = noteService.addNote(noteDto, principal.name)
 
     @PostMapping("/update")
     fun updateNote(
         @RequestBody @Validated(OnUpdate::class)
         noteDto: NoteDto,
         principal: Principal,
-    ): ResponseEntity<NoteDto> = noteService.updateNote(noteDto, principal.name)
+    ): Mono<ResponseEntity<NoteDto>> = noteService.updateNote(noteDto, principal.name)
 
     @DeleteMapping("/delete/{id}")
     fun deleteNote(
         @PathVariable @Min(0)
         id: Long,
-    ): ResponseEntity<MessageResponse> = noteService.deleteNote(id)
+    ): Mono<ResponseEntity<MessageResponse>> = noteService.deleteNote(id)
 
     @GetMapping("/get/all")
-    fun getNotes(principal: Principal): List<NoteDto> =
+    fun getNotes(principal: Principal): Flux<NoteDto> =
         noteService.getNotes(principal.name)
 }

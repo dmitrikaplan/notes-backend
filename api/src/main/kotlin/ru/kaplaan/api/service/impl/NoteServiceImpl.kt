@@ -1,20 +1,19 @@
 package ru.kaplaan.api.service.impl
 
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.RestTemplate
-import ru.kaplaan.api.domain.exception.EmptyBodyException
+import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import ru.kaplaan.api.service.NoteService
 import ru.kaplaan.api.web.dto.note.NoteDto
 import ru.kaplaan.api.web.dto.response.MessageResponse
 
 @Service
 class NoteServiceImpl(
-    private val restClient: RestClient
+    private val webClient: WebClient
 ): NoteService {
 
     @Value("\${note-server.base-url}")
@@ -33,38 +32,35 @@ class NoteServiceImpl(
     lateinit var getAllEndpoint: String
 
 
-    override fun addNote(noteDto: NoteDto, username: String): ResponseEntity<NoteDto> =
-        restClient
+    override fun addNote(noteDto: NoteDto, username: String): Mono<ResponseEntity<NoteDto>> =
+        webClient
             .post()
             .uri("$baseUrl$addEndpoint/$username")
-            .body(noteDto)
+            .body(BodyInserters.fromValue(noteDto))
             .retrieve()
             .toEntity(NoteDto::class.java)
 
-    override fun updateNote(noteDto: NoteDto, username: String): ResponseEntity<NoteDto> =
-        restClient
+    override fun updateNote(noteDto: NoteDto, username: String): Mono<ResponseEntity<NoteDto>> =
+        webClient
             .post()
             .uri("$baseUrl$updateEndpoint/$username")
-            .body(noteDto)
+            .body(BodyInserters.fromValue(noteDto))
             .retrieve()
             .toEntity(NoteDto::class.java)
 
-    override fun deleteNote(id: Long): ResponseEntity<MessageResponse> =
-        restClient
+    override fun deleteNote(id: Long): Mono<ResponseEntity<MessageResponse>> =
+        webClient
             .delete()
             .uri("$baseUrl$deleteEndpoint/$id")
             .retrieve()
             .toEntity(MessageResponse::class.java)
 
 
-    override fun getNotes(username: String): List<NoteDto> =
-        restClient
+    override fun getNotes(username: String): Flux<NoteDto> =
+        webClient
             .get()
             .uri("$baseUrl$getAllEndpoint/$username")
             .retrieve()
-            .toEntity(List::class.java)
-            .body?.let {
-            it as List<NoteDto>
-        } ?: throw EmptyBodyException()
+            .bodyToFlux(NoteDto::class.java)
 
 }

@@ -1,4 +1,4 @@
-rootProject.name = "notes_backend"
+rootProject.name = "notes-backend"
 
 
 include(

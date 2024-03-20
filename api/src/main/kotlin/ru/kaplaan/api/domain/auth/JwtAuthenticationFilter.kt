@@ -1,85 +1,69 @@
 package ru.kaplaan.api.domain.auth
 
-import jakarta.servlet.FilterChain
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.Authentication
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.security.web.authentication.AuthenticationConverter
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
-import org.springframework.web.client.RestClient
-import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.body
+import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.server.WebFilter
+import org.springframework.web.server.WebFilterChain
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.switchIfEmpty
+import reactor.util.context.Context
+import ru.kaplaan.api.domain.exception.BadResponseException
+import ru.kaplaan.api.domain.exception.JwtTokenNotFoundException
+import ru.kaplaan.api.domain.exception.UserNotAuthenticatedException
 import ru.kaplaan.api.web.dto.authentication.AuthenticationDto
 import ru.kaplaan.api.web.mapper.toDto
 import ru.kaplaan.api.web.mapper.toUsernamePasswordAuthentication
 
 
 class JwtAuthenticationFilter(
-    private val jwtAuthenticationConverter: AuthenticationConverter,
-    private val authenticationEntryPoint: AuthenticationEntryPoint,
-    private val restClient: RestClient,
     private val url: String,
-
-) : OncePerRequestFilter() {
+    private val jwtAuthenticationConverter: ServerAuthenticationConverter,
+    private val webClient: WebClient,
+) : WebFilter {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy()
-    private val securityContextRepository = RequestAttributeSecurityContextRepository()
-
-
-
-    override fun doFilterInternal(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        filterChain: FilterChain
-    ) {
-
-        val authenticationRequest = jwtAuthenticationConverter.convert(request)
-        ?: run{
-            filterChain.doFilter(request, response)
-            return
-        }
-
-        try{
-            val authentication = authenticationRequest(authenticationRequest.toDto())
-            val securityContext = securityContextHolderStrategy.createEmptyContext().apply {
-                this.authentication = authentication
-            }
-
-            securityContextHolderStrategy.context = securityContext
-            securityContextRepository.saveContext(securityContext, request, response)
-
-        } catch (e: AuthenticationException){
-            securityContextHolderStrategy.clearContext()
-            log.debug(e.message)
-            authenticationEntryPoint.commence(request, response, e)
-            return
-        }
-
-        filterChain.doFilter(request, response)
+    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
+            return jwtAuthenticationConverter.convert(exchange)
+                .switchIfEmpty{
+                    Mono.error(JwtTokenNotFoundException())
+                }
+                .map {
+                    it.toDto()
+                }
+                .authenticationRequest()
+                .map {
+                    ReactiveSecurityContextHolder.withAuthentication(it)
+                }
+                .flatMap { context ->
+                    chain.filter(exchange).contextWrite(context)
+                }
+                .onErrorResume(AuthenticationException::class.java) {
+                    chain.filter(exchange)
+                }
 
     }
 
 
-
-    private fun authenticationRequest(authenticationDto: AuthenticationDto): Authentication{
-            restClient
+    private fun Mono<AuthenticationDto>.authenticationRequest(): Mono<UsernamePasswordAuthenticationToken> {
+        return webClient
             .post()
             .uri(url)
-            .body(authenticationDto)
+            .body(this)
             .retrieve()
             .toEntity(AuthenticationDto::class.java)
-            .let { response ->
-                if (response.statusCode.value() == HttpStatus.OK.value() && response.body != null)
-                    return response.body!!.toUsernamePasswordAuthentication()
-                else throw BadCredentialsException("Невозможно аутентифицировать пользователя!")
+            .handle { response, sink ->
+                if (response.statusCode != HttpStatus.OK || response.body == null)
+                    sink.error(UserNotAuthenticatedException())
+                else sink.next(response.body!!.toUsernamePasswordAuthentication())
             }
-
     }
 }

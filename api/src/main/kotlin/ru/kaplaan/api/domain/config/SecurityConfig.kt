@@ -4,21 +4,19 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.AuthenticationConverter
-import org.springframework.web.client.RestClient
-import ru.kaplaan.api.domain.auth.JwtConfigurer
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder
+import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import org.springframework.web.reactive.function.client.WebClient
+import ru.kaplaan.api.domain.auth.JwtAuthenticationFilter
 
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 class SecurityConfig (
-    private val authenticationConverter: AuthenticationConverter,
-    private val restClient: RestClient
+    private val webClient: WebClient,
+    private val jwtAuthenticationConverter: ServerAuthenticationConverter
 ) {
 
     @Value("\${auth-server.base-url}")
@@ -28,7 +26,7 @@ class SecurityConfig (
     lateinit var authenticationEndpoint: String
 
     @Bean
-    fun securityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
+    fun securityWebFilterChain(httpSecurity: ServerHttpSecurity): SecurityWebFilterChain =
         httpSecurity
             .httpBasic {
                 it.disable()
@@ -39,25 +37,17 @@ class SecurityConfig (
             .cors {
                 it.disable()
             }
-            .sessionManagement {
-                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .authorizeExchange {
+                it.pathMatchers(HttpMethod.POST, "api/v1/auth/registration/user").permitAll()
+                it.pathMatchers(HttpMethod.POST, "api/v1/auth/login").permitAll()
+                it.pathMatchers(HttpMethod.GET, "api/v1/auth/activation/**").permitAll()
+                it.pathMatchers(HttpMethod.POST, "api/v1/auth/recovery").permitAll()
+                it.pathMatchers(HttpMethod.POST, "api/v1/auth/refresh").permitAll()
+                it.pathMatchers(HttpMethod.GET, "/test").permitAll()
+                it.anyExchange().authenticated()
             }
-            .authorizeHttpRequests {
-                it.requestMatchers(HttpMethod.POST, "api/v1/auth/registration/user").permitAll()
-                it.requestMatchers(HttpMethod.POST, "api/v1/auth/login").permitAll()
-                it.requestMatchers(HttpMethod.GET, "api/v1/auth/activation/**").permitAll()
-                it.requestMatchers(HttpMethod.POST, "api/v1/auth/recovery").permitAll()
-                it.requestMatchers(HttpMethod.POST, "api/v1/auth/refresh").permitAll()
-                it.anyRequest().authenticated()
-            }
-            .also {
-                it.setSharedObject(AuthenticationConverter::class.java, authenticationConverter)
-                it.setSharedObject(RestClient::class.java, restClient)
-                it.setSharedObject(String::class.java, "$baseUrl$authenticationEndpoint")
-            }
-            .apply(JwtConfigurer())
+            .addFilterBefore(JwtAuthenticationFilter("$baseUrl$authenticationEndpoint", jwtAuthenticationConverter, webClient), SecurityWebFiltersOrder.AUTHENTICATION)
+            .build()
 
-        return httpSecurity.build()
-    }
 
 }

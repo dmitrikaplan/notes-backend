@@ -1,13 +1,11 @@
 package ru.kaplaan.api.service.impl
 
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.RestTemplate
-import ru.kaplaan.api.domain.exception.EmptyBodyException
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.body
+import reactor.core.publisher.Mono
 import ru.kaplaan.api.service.AuthService
 import ru.kaplaan.api.web.dto.refresh_token.RefreshTokenDto
 import ru.kaplaan.api.web.dto.response.JwtResponse
@@ -17,7 +15,7 @@ import ru.kaplaan.api.web.dto.user.UserIdentificationDto
 
 @Service
 class AuthServiceImpl(
-    private val restClient: RestClient
+    private val webClient: WebClient
 ): AuthService {
 
     @Value("\${auth-server.base-url}")
@@ -38,43 +36,43 @@ class AuthServiceImpl(
     @Value("\${auth-server.endpoint.refresh}")
     lateinit var refreshEndpoint: String
 
-    override fun registerUser(userDto: UserDto): ResponseEntity<MessageResponse> =
-        restClient
+    override fun registerUser(userDto: Mono<UserDto>): Mono<ResponseEntity<MessageResponse>> =
+        webClient
             .post()
             .uri("$baseUrl/$registrationEndpoint")
             .body(userDto)
             .retrieve()
             .toEntity(MessageResponse::class.java)
 
-    override fun login(userIdentificationDto: UserIdentificationDto): ResponseEntity<JwtResponse> =
-        restClient
+
+    override fun login(userIdentificationDto: Mono<UserIdentificationDto>): Mono<ResponseEntity<JwtResponse>> =
+        webClient
             .post()
             .uri("$baseUrl/$loginEndpoint")
             .body(userIdentificationDto)
             .retrieve()
             .toEntity(JwtResponse::class.java)
 
-    override fun activateAccount(code: String): ResponseEntity<String> =
-        restClient
+    override fun activateAccount(code: String): Mono<ResponseEntity<String>> =
+        webClient
             .get()
             .uri("$baseUrl/$activationEndpoint/$code")
             .retrieve()
             .toEntity(String::class.java)
 
-    override fun passwordRecovery(userIdentificationDto: UserIdentificationDto): ResponseEntity<MessageResponse> =
-        restClient
+    override fun passwordRecovery(userIdentificationDto: Mono<UserIdentificationDto>): Mono<ResponseEntity<MessageResponse>> =
+        webClient
             .post()
             .uri("$baseUrl/$recoveryEndpoint")
             .body(userIdentificationDto)
             .retrieve()
             .toEntity(MessageResponse::class.java)
 
-    override fun refresh(refreshTokenDto: RefreshTokenDto): JwtResponse =
-        restClient
+    override fun refresh(refreshTokenDto: Mono<RefreshTokenDto>): Mono<ResponseEntity<JwtResponse>> =
+        webClient
             .post()
             .uri("$baseUrl/$refreshEndpoint")
             .body(refreshTokenDto)
             .retrieve()
             .toEntity(JwtResponse::class.java)
-            .body ?: throw EmptyBodyException()
 }

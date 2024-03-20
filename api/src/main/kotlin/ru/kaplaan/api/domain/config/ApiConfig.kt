@@ -4,7 +4,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.web.authentication.AuthenticationConverter
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import reactor.core.publisher.Mono
 import ru.kaplaan.api.domain.auth.JwtService
 
 
@@ -15,26 +16,27 @@ class ApiConfig(
 
     @Bean
     fun jwtAuthenticationConverter() =
-        AuthenticationConverter{ request ->
+        ServerAuthenticationConverter { serverWebExchange ->
 
-            request.getHeader(HttpHeaders.AUTHORIZATION)?.let {
-
+            serverWebExchange.request.headers[HttpHeaders.AUTHORIZATION]?.forEach {
                 val header = it.trim()
+
                 if(!header.startsWith("Bearer "))
-                    return@AuthenticationConverter null
+                    return@forEach
 
                 val jwtToken = header.substring(7)
 
                 if(!jwtService.isValidAccessToken(jwtToken))
-                    return@AuthenticationConverter null
+                    return@forEach
 
                 val username = jwtService.extractUsernameFromAccessToken(jwtToken)
                 val password = jwtService.extractPasswordFromAccessToken(jwtToken)
 
-                UsernamePasswordAuthenticationToken
-                    .unauthenticated(username, password)
+                return@ServerAuthenticationConverter Mono.just(UsernamePasswordAuthenticationToken
+                    .unauthenticated(username, password))
+            }
 
-            } ?: return@AuthenticationConverter null
+            return@ServerAuthenticationConverter Mono.empty()
 
         }
 }
